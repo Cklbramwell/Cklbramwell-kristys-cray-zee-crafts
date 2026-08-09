@@ -1,21 +1,33 @@
-# Kristy's Cray-Zee Crafts V7.0
+# Kristy's Cray-Zee Crafts V7.1
 
-Professional React + Firebase + Netlify + Stripe storefront.
+React + Firebase + Netlify + Stripe.
 
-## Key files
-- `src/App.jsx` — application state and navigation
-- `src/pages/Home.jsx` — professional homepage
-- `src/pages/Shop.jsx` — category shop
-- `src/pages/Inspiration.jsx` — Design Inspiration
-- `src/components/ProductBuilder.jsx` — guided builder
-- `src/config/storefront.js` — categories, inspirations, testimonials
-- `src/config/pricing.js` — pricing configuration
-- `netlify/functions/create-checkout.mjs` — server-side Stripe pricing/checkout
-- `netlify/functions/stripe-webhook.mjs` — paid order fulfillment
+## V7.1 Highlights
+- Professional product detail pages
+- Dedicated builders by product family
+- Product templates / ordering purposes
+- Structured customization data
+- Live pricing for apparel, drinkware and laser
+- Server-side price enforcement before Stripe
+- Related products and product review presentation
 
-## Deployment
-Netlify build: `npm run build`
-Publish: `dist`
-Functions: `netlify/functions`
+## Builder structure
+- `src/components/builders/ApparelBuilder.jsx`
+- `src/components/builders/DrinkwareBuilder.jsx`
+- `src/components/builders/LaserBuilder.jsx`
+- `src/components/builders/MarketingBuilder.jsx`
+- `src/components/ProductBuilder.jsx` routes products to the correct builder.
 
-Keep your current Netlify environment variables.
+## Pricing
+- `src/config/pricing.js`
+- `netlify/functions/create-checkout.mjs`
+
+The browser and server each calculate the allowed price independently.
+
+## Product images
+Admin currently supports one `imageUrl`.
+Product pages also recognize optional Firestore fields:
+- `imageUrl2`
+- `imageUrl3`
+
+These can be added later to Admin without affecting checkout.

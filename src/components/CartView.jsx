@@ -85,12 +85,14 @@ export default function CartView({
 
 export function ConfigurationSummary({ options }) {
   const rows = [
-    ["Style", options.shirtStyle],
+    ["Template", options.templateLabel],
+    ["Product Type", options.marketingProductType],
     ["Size", options.size],
     ["Color", options.color],
     ["Design Type", options.designType],
     ["Placement", options.printLocation],
     ["Print Method", options.printMethod],
+    ["Sleeve Print", options.sleevePrint],
     ["Personalization", options.personalization],
     ["Design Notes", options.designNotes],
     ["Artwork", options.artworkMethod],
@@ -99,13 +101,13 @@ export function ConfigurationSummary({ options }) {
     ["Delivery", options.deliveryMethod],
     ["Needed By", options.neededBy],
     ["Occasion", options.occasion],
+    ["Full Wrap", options.fullWrap],
     ["Laser Item", options.laserItemType],
     ["Material", options.laserMaterial],
     ["Dimensions", options.dimensions],
     ["Layout / Style", options.layoutStyle],
     ["Finish / Color", options.finishColor],
     ["Engraving Text", options.engravingText],
-    ["Full Wrap", options.fullWrap],
     ["Extra Engraving Side", options.extraEngravingSide],
     ["Custom Design Fee", options.designFee],
   ].filter(([, value]) => value && value !== "No");

@@ -19,6 +19,7 @@ import Rewards from "./pages/Rewards";
 import CustomOrder from "./pages/CustomOrder";
 import Admin from "./pages/Admin";
 import Inspiration from "./pages/Inspiration";
+import ProductPage from "./pages/ProductPage";
 import { CATEGORIES } from "./config/storefront";
 import { auth, db } from "./firebase";
 import { productPrice } from "./utils";
@@ -80,6 +81,7 @@ export default function App() {
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("featured");
   const [designProductId, setDesignProductId] = useState(null);
+  const [viewProductId, setViewProductId] = useState(null);
   const [builderPreset, setBuilderPreset] = useState(null);
   const [message, setMessage] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -189,6 +191,11 @@ export default function App() {
     setDesignProductId(id);
     setBuilderPreset(preset);
     navigate("design");
+  };
+
+  const openProduct = (id) => {
+    setViewProductId(id);
+    navigate("product");
   };
 
   const openCategory = (categoryId) => {
@@ -308,7 +315,18 @@ export default function App() {
             setCategory={setCategory}
             sort={sort}
             setSort={setSort}
+            onCustomize={openProduct}
+          />
+        );
+
+      case "product":
+        return (
+          <ProductPage
+            product={allProducts.find((item) => item.id === viewProductId)}
+            products={liveProducts}
             onCustomize={openBuilder}
+            onOpenProduct={openProduct}
+            onBack={() => navigate("shop")}
           />
         );
 
@@ -402,7 +420,7 @@ export default function App() {
           <Home
             products={liveProducts}
             navigate={navigate}
-            onCustomize={openBuilder}
+            onCustomize={openProduct}
             onCategory={openCategory}
             onInspiration={openInspiration}
           />

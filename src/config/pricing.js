@@ -1,38 +1,55 @@
 export const BUILDER_PRICING = {
   apparel: {
-    shortSleeveBaseBySize: {
-      "S": 2000,
-      "M": 2000,
-      "L": 2000,
-      "XL": 2000,
-      "2XL": 2500,
-      "3XL": 2500,
-      "4XL": 2700,
-      "5XL": 3000,
+    tshirt: {
+      baseBySize: {
+        "S": 2000,
+        "M": 2000,
+        "L": 2000,
+        "XL": 2000,
+        "2XL": 2500,
+        "3XL": 2500,
+        "4XL": 2700,
+        "5XL": 3000,
+      },
+      backPrintAddOn: 1000,
     },
-    styleBase: {
-      "Unisex (Adult)": null,
-      "Women's Fitted": null,
-      "Youth": null,
-      "Long Sleeve": 2500,
-      "Hoodie": 3500,
-      "Other": null,
+
+    hoodie: {
+      baseBySize: {
+        "S": 3500,
+        "M": 3500,
+        "L": 3500,
+        "XL": 3500,
+        "2XL": 5000,
+        "3XL": 5000,
+        "4XL": 5000,
+        "5XL": 5000,
+      },
+      backPrintAddOn: 1000,
     },
-    placementBase: {
-      "Front Only": null,
-      "Back Only": null,
-      "Front & Back": 4500,
-      "Left Chest": null,
-      "Sleeve": null,
+
+    longSleeve: {
+      baseBySize: {
+        "S": 2500,
+        "M": 2500,
+        "L": 2500,
+        "XL": 2500,
+        "2XL": 3000,
+        "3XL": 3000,
+        "4XL": 3200,
+        "5XL": 3500,
+      },
+      backPrintAddOn: 1000,
     },
+
     sleevePrintAddOn: 1000,
     personalizationAddOn: 500,
     rushAddOn: 2000,
     proofAddOn: 0,
   },
 
-  tumbler: {
-    sizeBase: {
+  drinkware: {
+    tumblerBase: {
       "20 oz": 3000,
       "30 oz": 4000,
     },
@@ -51,7 +68,18 @@ export const BUILDER_PRICING = {
     rushAddOn: 2000,
     designFeeAddOn: 2500,
   },
+
+  marketing: {
+    rushAddOn: 2000,
+  },
 };
+
+export const SHIRT_SIZES = ["S","M","L","XL","2XL","3XL","4XL","5XL"];
+export const PRINT_LOCATIONS = ["Front Only","Front & Back"];
+export const PRINT_METHODS = ["DTF","Screen Print","Vinyl"];
+export const TUMBLER_SIZES = ["20 oz","30 oz"];
+export const LASER_ITEM_TYPES = ["Cutting Board","Keychain","Acrylic Sign","Other"];
+export const LASER_MATERIALS = ["Wood","Acrylic","Slate","Leather","Stainless Steel","Other"];
 
 export const DESIGN_TYPES = [
   "Business Logo",
@@ -67,39 +95,9 @@ export const DESIGN_TYPES = [
   "Custom",
 ];
 
-export const SHIRT_STYLES = [
-  "Unisex (Adult)",
-  "Women's Fitted",
-  "Youth",
-  "Long Sleeve",
-  "Hoodie",
-  "Other",
-];
-
-export const PRINT_LOCATIONS = [
-  "Front Only",
-  "Back Only",
-  "Front & Back",
-  "Left Chest",
-  "Sleeve",
-];
-
-export const PRINT_METHODS = ["DTF", "Screen Print", "Vinyl"];
-
-export const TUMBLER_SIZES = ["20 oz", "30 oz"];
-
-export const LASER_ITEM_TYPES = [
-  "Cutting Board",
-  "Keychain",
-  "Acrylic Sign",
-  "Other",
-];
-
-export const LASER_MATERIALS = [
-  "Wood",
-  "Acrylic",
-  "Slate",
-  "Leather",
-  "Stainless Steel",
-  "Other",
-];
+export function apparelKind(product) {
+  const text = [product?.name, product?.category].join(" ").toLowerCase();
+  if (text.includes("hoodie")) return "hoodie";
+  if (text.includes("long sleeve")) return "longSleeve";
+  return "tshirt";
+}

@@ -25,7 +25,7 @@ export default function ProductCard({ product, onCustomize }) {
         <div className="price">{money(price)}</div>
         <div className="row product-actions">
           <button className="btn primary" onClick={() => onCustomize(product.id)}>
-            Design / Customize
+            View & Customize
           </button>
         </div>
       </div>

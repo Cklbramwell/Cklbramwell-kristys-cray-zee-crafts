@@ -1,36 +1,65 @@
-# Kristy's Cray-Zee Crafts V7.0.0
+# Kristy's Cray-Zee Crafts
 
-## Professional Storefront Foundation
+## V7.1.0 — Professional Product Catalog + Dedicated Builders
 
-### Added
-- Redesigned professional homepage
-- Expanded navigation
-- Shop by Category
-- Category-filtered shop
-- Design Inspiration page
-- "Customize This Design" flow
-- Featured product section
-- Benefits / why-shop-with-us section
-- Testimonials section
-- Strong custom order call-to-action
-- Contact strip
-- New storefront content configuration
-- Responsive mobile styling
+### New
+- Product detail pages
+- Product image galleries with up to three image URLs
+- Related products
+- Product reviews section
+- Dedicated Apparel Builder
+- Dedicated Drinkware Builder
+- Dedicated Laser Builder
+- Promotional Products request builder
+- Product-purpose templates
+- Structured option data carried into cart / Stripe / Firestore
+- More detailed cart configuration summary
 
-### Preserved
-- Firebase Authentication
-- Firestore products, orders, customers and requests
-- Stripe Checkout
-- Netlify Functions
-- Guided Product Builder
-- Customer Order History
-- Admin Dashboard
-- Shipping/tracking controls
-- Existing environment variables
+### Apparel Pricing Included
+T-Shirts:
+- S–XL $20 front only
+- 2XL $25 front only
+- 3XL $25 front only
+- 4XL $27 front only
+- 5XL $30 front only
+- Back print +$10/item
+- Sleeve print +$10/item
+- Personalized name/number +$5/item
+- Rush +$20/order
 
-### Pricing
-V7.0 keeps the current pricing implementation from the latest pricing patch.
-Review pricing in `src/config/pricing.js` before Live Stripe use.
+Hoodies:
+- S–XL $35 front only
+- 2XL–5XL $50 front only
+- Back print +$10/item
+- Sleeve print +$10/item
+- Personalized name/number +$5/item
+- Rush +$20/order
 
-### Next V7 release
-V7.1: Expanded product catalog + dedicated builders by product family.
+Long Sleeve:
+- S–XL $25 front only
+- 2XL $30
+- 3XL $30
+- 4XL $32
+- 5XL $35
+- Back print +$10/item
+- Sleeve print +$10/item
+- Personalized name/number +$5/item
+- Rush +$20/order
+
+### Drinkware Pricing Included
+- 20 oz tumbler $30
+- 30 oz tumbler $40
+- Name personalization +$5/item
+- Full wrap +$2/item
+- Rush +$20/order
+
+### Laser Pricing Included
+- Cutting Board $40
+- Keychain $10
+- Acrylic Sign $20
+- Extra engraving side +$5/item
+- Rush +$20/order
+- Custom design fee +$25/order
+
+### Important
+Promotional product pricing is not invented. Those items are marked for price review until actual pricing is supplied.

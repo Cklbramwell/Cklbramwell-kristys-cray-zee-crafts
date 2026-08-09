@@ -7,15 +7,24 @@ import {
 
 const STARTER_PRICING = {
   apparel: {
-    shortSleeveBaseBySize: {"S":2000,"M":2000,"L":2000,"XL":2000,"2XL":2500,"3XL":2500,"4XL":2700,"5XL":3000},
-    styleBase: {"Unisex (Adult)":null,"Women's Fitted":null,"Youth":null,"Long Sleeve":2500,"Hoodie":3500,"Other":null},
-    placementBase: {"Front Only":null,"Back Only":null,"Front & Back":4500,"Left Chest":null,"Sleeve":null},
+    tshirt: {
+      baseBySize: {"S":2000,"M":2000,"L":2000,"XL":2000,"2XL":2500,"3XL":2500,"4XL":2700,"5XL":3000},
+      backPrintAddOn: 1000
+    },
+    hoodie: {
+      baseBySize: {"S":3500,"M":3500,"L":3500,"XL":3500,"2XL":5000,"3XL":5000,"4XL":5000,"5XL":5000},
+      backPrintAddOn: 1000
+    },
+    longSleeve: {
+      baseBySize: {"S":2500,"M":2500,"L":2500,"XL":2500,"2XL":3000,"3XL":3000,"4XL":3200,"5XL":3500},
+      backPrintAddOn: 1000
+    },
     sleevePrintAddOn: 1000,
     personalizationAddOn: 500,
     rushAddOn: 2000
   },
-  tumbler: {
-    sizeBase: {"20 oz":3000,"30 oz":4000},
+  drinkware: {
+    tumblerBase: {"20 oz":3000,"30 oz":4000},
     personalizationAddOn: 500,
     fullWrapAddOn: 200,
     rushAddOn: 2000
@@ -38,56 +47,47 @@ function calculateConfiguredPricing(basePrice, qty, options) {
   let oneTime = 0;
 
   if (options.builderType === "apparel") {
-    resolvedBase =
-      STARTER_PRICING.apparel.shortSleeveBaseBySize[options.size] || basePrice;
+    const kind = ["tshirt","hoodie","longSleeve"].includes(options.apparelKind)
+      ? options.apparelKind
+      : "tshirt";
+    const table = STARTER_PRICING.apparel[kind];
+    resolvedBase = table.baseBySize[options.size] || basePrice;
 
-    const styleBase = STARTER_PRICING.apparel.styleBase[options.shirtStyle];
-    if (styleBase != null) resolvedBase = styleBase;
-
-    const placementBase =
-      STARTER_PRICING.apparel.placementBase[options.printLocation];
-    if (placementBase != null) resolvedBase = placementBase;
-
-    if (options.printLocation === "Sleeve") {
+    if (options.printLocation === "Front & Back") {
+      perUnit += table.backPrintAddOn;
+    }
+    if (options.sleevePrint === "Yes") {
       perUnit += STARTER_PRICING.apparel.sleevePrintAddOn;
     }
-
     if (String(options.personalization || "").trim()) {
       perUnit += STARTER_PRICING.apparel.personalizationAddOn;
     }
-
     if (options.rushOrder === "Yes") {
       oneTime += STARTER_PRICING.apparel.rushAddOn;
     }
-  } else if (options.builderType === "tumbler") {
-    resolvedBase =
-      STARTER_PRICING.tumbler.sizeBase[options.size] || basePrice;
+  } else if (options.builderType === "drinkware") {
+    resolvedBase = STARTER_PRICING.drinkware.tumblerBase[options.size] || basePrice;
 
     if (String(options.personalization || "").trim()) {
-      perUnit += STARTER_PRICING.tumbler.personalizationAddOn;
+      perUnit += STARTER_PRICING.drinkware.personalizationAddOn;
     }
-
     if (options.fullWrap === "Yes") {
-      perUnit += STARTER_PRICING.tumbler.fullWrapAddOn;
+      perUnit += STARTER_PRICING.drinkware.fullWrapAddOn;
     }
-
     if (options.rushOrder === "Yes") {
-      oneTime += STARTER_PRICING.tumbler.rushAddOn;
+      oneTime += STARTER_PRICING.drinkware.rushAddOn;
     }
   } else if (options.builderType === "laser") {
-    resolvedBase =
-      STARTER_PRICING.laser.itemBase[options.laserItemType] || basePrice;
+    resolvedBase = STARTER_PRICING.laser.itemBase[options.laserItemType] || basePrice;
 
     if (options.extraEngravingSide === "Yes") {
       perUnit += STARTER_PRICING.laser.extraEngravingSideAddOn;
     }
-
-    if (options.rushOrder === "Yes") {
-      oneTime += STARTER_PRICING.laser.rushAddOn;
-    }
-
     if (options.designFee === "Yes") {
       oneTime += STARTER_PRICING.laser.designFeeAddOn;
+    }
+    if (options.rushOrder === "Yes") {
+      oneTime += STARTER_PRICING.laser.rushAddOn;
     }
   }
 
@@ -136,12 +136,17 @@ export default async (request) => {
       lineKey: String(item?.lineKey || "").slice(0,120),
       options: item?.options && typeof item.options === "object" ? {
         builderType: String(item.options.builderType || "").slice(0,80),
+        apparelKind: String(item.options.apparelKind || "").slice(0,80),
+        templateId: String(item.options.templateId || "").slice(0,80),
+        templateLabel: String(item.options.templateLabel || "").slice(0,160),
+        marketingProductType: String(item.options.marketingProductType || "").slice(0,160),
         size: String(item.options.size || "").slice(0,120),
         color: String(item.options.color || "").slice(0,120),
         shirtStyle: String(item.options.shirtStyle || "").slice(0,160),
         designType: String(item.options.designType || "").slice(0,160),
         printLocation: String(item.options.printLocation || "").slice(0,160),
         printMethod: String(item.options.printMethod || "").slice(0,120),
+        sleevePrint: String(item.options.sleevePrint || "").slice(0,20),
         personalization: String(item.options.personalization || "").slice(0,400),
         designNotes: String(item.options.designNotes || "").slice(0,400),
         artworkMethod: String(item.options.artworkMethod || "").slice(0,200),
@@ -235,6 +240,11 @@ export default async (request) => {
       if (p.options?.designNotes) form.set(`line_items[${index}][price_data][product_data][metadata][designNotes]`, p.options.designNotes);
       if (p.options?.shirtStyle) form.set(`line_items[${index}][price_data][product_data][metadata][shirtStyle]`, p.options.shirtStyle);
       if (p.options?.designType) form.set(`line_items[${index}][price_data][product_data][metadata][designType]`, p.options.designType);
+      if (p.options?.apparelKind) form.set(`line_items[${index}][price_data][product_data][metadata][apparelKind]`, p.options.apparelKind);
+      if (p.options?.templateId) form.set(`line_items[${index}][price_data][product_data][metadata][templateId]`, p.options.templateId);
+      if (p.options?.templateLabel) form.set(`line_items[${index}][price_data][product_data][metadata][templateLabel]`, p.options.templateLabel);
+      if (p.options?.marketingProductType) form.set(`line_items[${index}][price_data][product_data][metadata][marketingProductType]`, p.options.marketingProductType);
+      if (p.options?.sleevePrint) form.set(`line_items[${index}][price_data][product_data][metadata][sleevePrint]`, p.options.sleevePrint);
       if (p.options?.printLocation) form.set(`line_items[${index}][price_data][product_data][metadata][printLocation]`, p.options.printLocation);
       if (p.options?.printMethod) form.set(`line_items[${index}][price_data][product_data][metadata][printMethod]`, p.options.printMethod);
       if (p.options?.artworkMethod) form.set(`line_items[${index}][price_data][product_data][metadata][artworkMethod]`, p.options.artworkMethod);
