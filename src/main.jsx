@@ -93,14 +93,22 @@ function App(){
  const add=id=>setCart(c=>{const n=[...c],f=n.find(x=>x.id===id);f?f.qty++:n.push({id,qty:1});return n});
  const beginCheckout=async()=>{
    if(!cart.length)return notify("Your cart is empty.");
+   if(!user){
+     notify("Please sign in before checkout so your order can be saved to your account.");
+     nav("account");
+     return;
+   }
    setCheckoutLoading(true);
    try{
+     const idToken=await user.getIdToken();
      const response=await fetch("/.netlify/functions/create-checkout",{
        method:"POST",
-       headers:{"Content-Type":"application/json"},
+       headers:{
+         "Content-Type":"application/json",
+         "Authorization":`Bearer ${idToken}`
+       },
        body:JSON.stringify({
-         items:cart.map(({id,qty})=>({id,qty})),
-         customerEmail:user?.email||""
+         items:cart.map(({id,qty})=>({id,qty}))
        })
      });
      const data=await response.json();
