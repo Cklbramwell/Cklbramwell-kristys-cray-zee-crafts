@@ -14,7 +14,7 @@ const money=c=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).
 const price=p=>p.salePrice>0&&p.salePrice<p.price?p.salePrice:p.price;
 
 
-function ProductCard({p,add}){
+function ProductCard({p,add,onCustomize}){
  return <div className="card product">
    {p.featured&&<span className="featured">FEATURED</span>}
    {p.salePrice>0&&p.salePrice<p.price&&<span className="sale">SALE</span>}
@@ -25,12 +25,12 @@ function ProductCard({p,add}){
      <p className="muted">{p.description}</p>
      <div className="price">{money(price(p))}{p.salePrice>0&&p.salePrice<p.price&&<span className="old-price">{money(p.price)}</span>}</div>
      <br/>
-     <button className="btn primary" onClick={()=>add(p.id)}>Add to Cart</button>
+     <div className="row"><button className="btn primary" onClick={()=>onCustomize(p.id)}>Design / Customize</button><button className="btn secondary" onClick={()=>add(p.id)}>Quick Add</button></div>
    </div>
  </div>;
 }
 
-function ShopPage({live,search,setSearch,category,setCategory,sort,setSort,shopItems,add}){
+function ShopPage({live,search,setSearch,category,setCategory,sort,setSort,shopItems,add,onCustomize}){
  const categories=["All",...new Set(live.map(p=>p.category))];
  return <section className="wrap">
    <div className="eyebrow">Shop</div>
@@ -52,7 +52,99 @@ function ShopPage({live,search,setSearch,category,setCategory,sort,setSort,shopI
      {categories.map(c=><button className={category===c?"active":""} onClick={()=>setCategory(c)} key={c}>{c}</button>)}
    </div>
    <div className="grid g4">
-     {shopItems.map(p=><ProductCard p={p} add={add} key={p.id}/>)}
+     {shopItems.map(p=><ProductCard p={p} add={add} onCustomize={onCustomize} key={p.id}/>)}
+   </div>
+ </section>;
+}
+
+
+function DesignPage({product,onAdd,onBack}){
+ const sizeOptions=String(product?.sizes||"").split(",").map(x=>x.trim()).filter(Boolean);
+ const colorOptions=String(product?.colors||"").split(",").map(x=>x.trim()).filter(Boolean);
+ const [size,setSize]=useState(sizeOptions[0]||"");
+ const [color,setColor]=useState(colorOptions[0]||"");
+ const [personalization,setPersonalization]=useState("");
+ const [designNotes,setDesignNotes]=useState("");
+ const [quantity,setQuantity]=useState(1);
+
+ if(!product){
+   return <section className="wrap"><div className="card"><h2>Product not found</h2><button className="btn secondary" onClick={onBack}>Back to Shop</button></div></section>;
+ }
+
+ const unitPrice=price(product);
+ const lineTotal=unitPrice*Math.max(1,Number(quantity)||1);
+
+ return <section className="wrap">
+   <div className="eyebrow">Design your item</div>
+   <div className="grid g2">
+     <div className="card product" style={{overflow:"hidden"}}>
+       <div className="product-art">
+         {product.imageUrl?<img src={product.imageUrl} alt={product.name}/>:product.emoji||"🎨"}
+       </div>
+       <div className="product-body">
+         <span className="tag">{product.category||"Custom Product"}</span>
+         <h2>{product.name}</h2>
+         <p className="muted">{product.description||""}</p>
+         <div className="price">{money(unitPrice)} each</div>
+         <p className="muted">Your price stays visible while you choose your options.</p>
+       </div>
+     </div>
+
+     <div className="card">
+       <h2>Customize</h2>
+       <div className="form">
+         <div className="field">
+           <label>Quantity</label>
+           <input type="number" min="1" max="99" value={quantity} onChange={e=>setQuantity(Math.max(1,Number(e.target.value)||1))}/>
+         </div>
+
+         <div className="field">
+           <label>Size</label>
+           {sizeOptions.length?
+             <select value={size} onChange={e=>setSize(e.target.value)}>
+               {sizeOptions.map(s=><option key={s}>{s}</option>)}
+             </select>
+             : <input value={size} onChange={e=>setSize(e.target.value)} placeholder="Enter size"/>
+           }
+         </div>
+
+         <div className="field">
+           <label>Color</label>
+           {colorOptions.length?
+             <select value={color} onChange={e=>setColor(e.target.value)}>
+               {colorOptions.map(c=><option key={c}>{c}</option>)}
+             </select>
+             : <input value={color} onChange={e=>setColor(e.target.value)} placeholder="Enter color"/>
+           }
+         </div>
+
+         <div className="field full">
+           <label>Personalization / Wording</label>
+           <input value={personalization} onChange={e=>setPersonalization(e.target.value)} placeholder="Name, phrase, wording, etc."/>
+         </div>
+
+         <div className="field full">
+           <label>Design Notes</label>
+           <textarea value={designNotes} onChange={e=>setDesignNotes(e.target.value)} placeholder="Describe the design, placement, theme, special instructions, etc."/>
+         </div>
+
+         <div className="full card" style={{background:"#100c16"}}>
+           <div className="row space"><span>Unit price</span><b>{money(unitPrice)}</b></div>
+           <div className="row space"><span>Quantity</span><b>{quantity}</b></div>
+           <div className="row space" style={{marginTop:8}}><span><b>Estimated item total</b></span><span className="price">{money(lineTotal)}</span></div>
+         </div>
+
+         <div className="full row">
+           <button className="btn primary" onClick={()=>onAdd(product,{
+             size,
+             color,
+             personalization,
+             designNotes
+           },quantity)}>Add Customized Item to Cart</button>
+           <button className="btn secondary" onClick={onBack}>Back to Shop</button>
+         </div>
+       </div>
+     </div>
    </div>
  </section>;
 }
@@ -61,6 +153,7 @@ function App(){
  const [route,setRoute]=useState("home"),[user,setUser]=useState(null),[profile,setProfile]=useState(null);
  const [products,setProducts]=useState([]),[orders,setOrders]=useState([]),[adminOrders,setAdminOrders]=useState([]),[requests,setRequests]=useState([]),[users,setUsers]=useState([]);
  const [adminTab,setAdminTab]=useState("dashboard"),[search,setSearch]=useState(""),[category,setCategory]=useState("All"),[sort,setSort]=useState("featured");
+ const [designProductId,setDesignProductId]=useState(null);
  const [editing,setEditing]=useState(null),[message,setMessage]=useState(""),[checkoutLoading,setCheckoutLoading]=useState(false);
  const [cart,setCart]=useState(()=>JSON.parse(localStorage.getItem("kcc_v5_cart")||"[]"));
  const all=products.length?products:fallback;
@@ -90,7 +183,24 @@ function App(){
  ];return()=>stops.forEach(x=>x())},[profile]);
 
  const notify=m=>setMessage(m),nav=r=>{setRoute(r);window.scrollTo(0,0)};
- const add=id=>setCart(c=>{const n=[...c],f=n.find(x=>x.id===id);f?f.qty++:n.push({id,qty:1});return n});
+ const add=id=>setCart(c=>{const n=[...c],f=n.find(x=>x.id===id&&!x.options);f?f.qty++:n.push({id,qty:1});return n});
+ const openDesigner=id=>{setDesignProductId(id);nav("design")};
+ const addConfigured=(product,options,qty)=>{
+   const lineKey=`${product.id}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+   setCart(c=>[...c,{
+     id:product.id,
+     qty:Math.max(1,Number(qty)||1),
+     lineKey,
+     options:{
+       size:String(options?.size||""),
+       color:String(options?.color||""),
+       personalization:String(options?.personalization||""),
+       designNotes:String(options?.designNotes||"")
+     }
+   }]);
+   notify(`${product.name} added to cart`);
+   nav("cart");
+ };
  const beginCheckout=async()=>{
    if(!cart.length)return notify("Your cart is empty.");
    if(!user){
@@ -108,7 +218,7 @@ function App(){
          "Authorization":`Bearer ${idToken}`
        },
        body:JSON.stringify({
-         items:cart.map(({id,qty})=>({id,qty}))
+         items:cart.map(({id,qty,lineKey,options})=>({id,qty,lineKey:lineKey||"",options:options||null}))
        })
      });
      const data=await response.json();
@@ -152,7 +262,7 @@ function App(){
    return x;
  },[live,category,search,sort]);
 
- const Home=()=> <><section className="wrap hero"><div><div className="eyebrow">Custom creations made for you</div><h1>Turn your ideas into something <span className="gradient">Cray-Zee creative.</span></h1><p className="lead">Shop personalized shirts, tumblers and graphics, manage custom requests, and earn loyalty rewards.</p><div className="row"><button className="btn primary" onClick={()=>nav("shop")}>Shop Now</button><button className="btn secondary" onClick={()=>nav("custom")}>Custom Order</button></div></div><img src="/assets/kristys-logo.png"/></section><section className="wrap"><h2>Featured</h2><div className="grid g3">{live.filter(p=>p.featured).slice(0,3).map(p=><ProductCard p={p} add={add} key={p.id}/>)}</div></section></>;
+ const Home=()=> <><section className="wrap hero"><div><div className="eyebrow">Custom creations made for you</div><h1>Turn your ideas into something <span className="gradient">Cray-Zee creative.</span></h1><p className="lead">Shop personalized shirts, tumblers and graphics, manage custom requests, and earn loyalty rewards.</p><div className="row"><button className="btn primary" onClick={()=>nav("shop")}>Shop Now</button><button className="btn secondary" onClick={()=>nav("custom")}>Custom Order</button></div></div><img src="/assets/kristys-logo.png"/></section><section className="wrap"><h2>Featured</h2><div className="grid g3">{live.filter(p=>p.featured).slice(0,3).map(p=><ProductCard p={p} add={add} onCustomize={openDesigner} key={p.id}/>)}</div></section></>;
  const Account=()=> !user?<section className="wrap"><div className="grid g2"><form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await signInWithEmailAndPassword(auth,f.get("email"),f.get("password"));notify("Signed in")}catch(x){notify(x.message)}}}><h2 className="full">Sign In</h2><div className="field full"><label>Email</label><input name="email" type="email" required/></div><div className="field full"><label>Password</label><input name="password" type="password" required/></div><div className="full row"><button className="btn primary">Sign In</button><button type="button" className="btn secondary" onClick={async()=>{const e=prompt("Email");if(e)await sendPasswordResetEmail(auth,e)}}>Forgot Password</button></div></form><form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{const c=await createUserWithEmailAndPassword(auth,f.get("email"),f.get("password"));await setDoc(doc(db,"users",c.user.uid),{name:f.get("name"),email:f.get("email"),phone:f.get("phone"),role:"customer",loyaltyPunches:0,availableRewards:0,createdAt:serverTimestamp()});notify("Account created")}catch(x){notify(x.message)}}}><h2 className="full">Create Account</h2><div className="field full"><label>Name</label><input name="name" required/></div><div className="field"><label>Email</label><input name="email" type="email" required/></div><div className="field"><label>Phone</label><input name="phone"/></div><div className="field full"><label>Password</label><input name="password" type="password" minLength="6" required/></div><div className="full"><button className="btn primary">Create Account</button></div></form></div></section>:<section className="wrap"><div className="row space"><h2>{profile?.name||user.email}</h2><button className="btn secondary" onClick={()=>signOut(auth)}>Sign Out</button></div><div className="metric-grid"><div className="metric">Orders<strong>{orders.length}</strong></div><div className="metric">Punches<strong>{profile?.loyaltyPunches||0}</strong></div><div className="metric">Rewards<strong>{profile?.availableRewards||0}</strong></div><div className="metric">Role<strong style={{fontSize:18}}>{profile?.role||"customer"}</strong></div></div></section>;
  const Rewards=()=> <section className="wrap"><h2>Cray-Zee Loyalty Card</h2><div className="card">{!user?<p>Sign in to view your rewards.</p>:<><div className="punches">{Array.from({length:10},(_,i)=><div className={`punch ${i<(profile?.loyaltyPunches||0)?"on":""}`} key={i}>{i<(profile?.loyaltyPunches||0)?"★":i+1}</div>)}</div><div className="notice">{profile?.availableRewards||0} rewards available</div></>}</div></section>;
  const Orders=()=> <section className="wrap">
@@ -178,6 +288,11 @@ function App(){
                  <div>
                    <b>{item.name || "Product"}</b>
                    <div className="muted">Quantity: {item.quantity || 0}</div>
+                    {item.productId && <div className="muted">Product ID: {item.productId}</div>}
+                    {item.size && <div><b>Size:</b> {item.size}</div>}
+                    {item.color && <div><b>Color:</b> {item.color}</div>}
+                    {item.personalization && <div><b>Personalization:</b> {item.personalization}</div>}
+                    {item.designNotes && <div><b>Design Notes:</b> {item.designNotes}</div>}
                  </div>
                  <div style={{textAlign:"right"}}>
                    {item.unitAmount != null && <div>{money(item.unitAmount)} each</div>}
@@ -227,7 +342,7 @@ function App(){
    )}
  </section>;
  const Custom=()=> <section className="wrap"><h2>Custom Order</h2>{!user?<div className="card"><p>Sign in first.</p></div>:<form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);await addDoc(collection(db,"customRequests"),{userId:user.uid,email:user.email,type:f.get("type"),quantity:Number(f.get("quantity")||1),size:f.get("size"),colors:f.get("colors"),wording:f.get("wording"),details:f.get("details"),status:"Request Received",createdAt:serverTimestamp()});e.currentTarget.reset();notify("Custom request submitted")}}><div className="field"><label>Product</label><select name="type"><option>Custom Shirt</option><option>Custom Tumbler</option><option>Custom Graphic</option><option>Other</option></select></div><div className="field"><label>Quantity</label><input name="quantity" type="number" defaultValue="1"/></div><div className="field"><label>Size</label><input name="size"/></div><div className="field"><label>Colors</label><input name="colors"/></div><div className="field full"><label>Wording</label><input name="wording"/></div><div className="field full"><label>Details</label><textarea name="details" required/></div><div className="full"><button className="btn primary">Submit</button></div></form>}</section>;
- const Cart=()=> <section className="wrap"><h2>Cart</h2><div className="card">{cart.length?cart.map((i,n)=>{const p=all.find(x=>x.id===i.id);return p?<div className="item row space" key={n}><div><b>{p.name}</b><div className="price">{money(price(p)*i.qty)}</div></div><div><button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button> {i.qty} <button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:x.qty+1}:x))}>+</button></div></div>:null}):<p className="muted">Cart is empty.</p>}<h3>Total: {money(subtotal)}</h3>{cart.length>0&&<><button className="btn primary" disabled={checkoutLoading} onClick={beginCheckout}>{checkoutLoading?"Opening secure checkout...":"Secure Checkout"}</button><p className="muted">Payments are processed securely by Stripe.</p></>}</div></section>;
+ const Cart=()=> <section className="wrap"><h2>Cart</h2><div className="card">{cart.length?cart.map((i,n)=>{const p=all.find(x=>x.id===i.id);return p?<div className="item" key={i.lineKey||`${i.id}-${n}`}><div className="row space"><div><b>{p.name}</b><div className="price">{money(price(p)*i.qty)}</div></div><div><button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button> {i.qty} <button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:x.qty+1}:x))}>+</button></div></div>{i.options&&<div className="muted" style={{marginTop:8}}>{i.options.size&&<div><b>Size:</b> {i.options.size}</div>}{i.options.color&&<div><b>Color:</b> {i.options.color}</div>}{i.options.personalization&&<div><b>Personalization:</b> {i.options.personalization}</div>}{i.options.designNotes&&<div><b>Design Notes:</b> {i.options.designNotes}</div>}</div>}</div>:null}):<p className="muted">Cart is empty.</p>}<h3>Total: {money(subtotal)}</h3>{cart.length>0&&<><button className="btn primary" disabled={checkoutLoading} onClick={beginCheckout}>{checkoutLoading?"Opening secure checkout...":"Secure Checkout"}</button><p className="muted">Payments are processed securely by Stripe.</p></>}</div></section>;
  const Admin=()=> profile?.role!=="admin"
  ? <section className="wrap"><div className="card">Admin access required.</div></section>
  : <section className="wrap">
@@ -362,6 +477,11 @@ function App(){
                   <div>
                     <b>{item.name || "Product"}</b>
                     <div className="muted">Quantity: {item.quantity || 0}</div>
+                    {item.productId && <div className="muted">Product ID: {item.productId}</div>}
+                    {item.size && <div><b>Size:</b> {item.size}</div>}
+                    {item.color && <div><b>Color:</b> {item.color}</div>}
+                    {item.personalization && <div><b>Personalization:</b> {item.personalization}</div>}
+                    {item.designNotes && <div><b>Design Notes:</b> {item.designNotes}</div>}
                   </div>
                   <div style={{textAlign:"right"}}>
                     {item.unitAmount != null && <div>{money(item.unitAmount)} each</div>}
@@ -502,7 +622,17 @@ function App(){
     }
   </section>;
 
- const pages={home:<Home/>,shop:<ShopPage live={live} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sort={sort} setSort={setSort} shopItems={shopItems} add={add}/>,account:<Account/>,rewards:<Rewards/>,orders:<Orders/>,custom:<Custom/>,cart:<Cart/>,admin:<Admin/>};
+ const pages={
+   home:<Home/>,
+   shop:<ShopPage live={live} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sort={sort} setSort={setSort} shopItems={shopItems} add={add} onCustomize={openDesigner}/>,
+   design:<DesignPage product={all.find(p=>p.id===designProductId)} onAdd={addConfigured} onBack={()=>nav("shop")}/>,
+   account:<Account/>,
+   rewards:<Rewards/>,
+   orders:<Orders/>,
+   custom:<Custom/>,
+   cart:<Cart/>,
+   admin:<Admin/>
+ };
  return <><header><div className="brand" onClick={()=>nav("home")}><img src="/assets/kristys-logo.png"/><span>Kristy's Cray-Zee Crafts</span></div><div className="nav"><button onClick={()=>nav("shop")}>Shop</button><button onClick={()=>nav("custom")}>Custom Order</button><button onClick={()=>nav("rewards")}>Rewards</button><button onClick={()=>nav("orders")}>Orders</button>{profile?.role==="admin"&&<button onClick={()=>nav("admin")}>Admin</button>}<button onClick={()=>nav("account")}>{user?"Account":"Sign In"}</button><button onClick={()=>nav("cart")}>Cart <span className="badge">{cart.reduce((s,x)=>s+x.qty,0)}</span></button></div></header><main>{pages[route]||pages.home}</main><footer><img src="/assets/kristys-logo.png"/><div><b>Kristy's Cray-Zee Crafts</b><div>Made with creativity. Crafted with care.</div></div></footer>{message&&<div className="toast">{message}</div>}</>;
 }
 createRoot(document.getElementById("root")).render(<App/>);
