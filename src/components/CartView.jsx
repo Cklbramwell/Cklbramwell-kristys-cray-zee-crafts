@@ -105,6 +105,9 @@ export function ConfigurationSummary({ options }) {
     ["Layout / Style", options.layoutStyle],
     ["Finish / Color", options.finishColor],
     ["Engraving Text", options.engravingText],
+    ["Full Wrap", options.fullWrap],
+    ["Extra Engraving Side", options.extraEngravingSide],
+    ["Custom Design Fee", options.designFee],
   ].filter(([, value]) => value && value !== "No");
 
   if (!rows.length) return null;

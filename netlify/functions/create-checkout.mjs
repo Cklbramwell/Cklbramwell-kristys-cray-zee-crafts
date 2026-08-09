@@ -7,30 +7,62 @@ import {
 
 const STARTER_PRICING = {
   apparel: {
-    sizeUpcharge: {"2XL":300,"3XL":400,"4XL":500,"5XL":600},
-    placement: {"Front Only":0,"Back Only":0,"Front & Back":800,"Left Chest":0,"Sleeve":500},
+    sizeUpcharge: {"S":0,"M":0,"L":0,"XL":0,"2XL":2500,"3XL":2500,"4XL":2700,"5XL":3000},
+    styleUpcharge: {"Unisex (Adult)":0,"Women's Fitted":0,"Youth":0,"Long Sleeve":2500,"Hoodie":3500,"Other":0},
+    placement: {"Front Only":0,"Back Only":0,"Front & Back":4500,"Left Chest":0,"Sleeve":1000},
     printMethod: {"DTF":0,"Screen Print":0,"Vinyl":0},
+    personalization: 500,
     rush: 2000
   },
-  laser: { rush: 2000 }
+  tumbler: {
+    sizePrice: {"20 oz":3000,"30 oz":4000},
+    personalization: 500,
+    fullWrap: 200,
+    rush: 2000
+  },
+  laser: {
+    itemPrice: {"Cutting Board":4000,"Keychain":1000,"Acrylic Sign":2000},
+    extraEngravingSide: 500,
+    rush: 2000,
+    designFee: 2500
+  }
 };
 
 function calculateConfiguredPricing(basePrice, qty, options) {
-  if (!options) return { unitAmount: basePrice, oneTimeAddOn: 0, lineTotal: basePrice * qty };
+  if (!options) {
+    return { unitAmount: basePrice, oneTimeAddOn: 0, lineTotal: basePrice * qty };
+  }
 
+  let resolvedBase = basePrice;
   let perUnit = 0;
   let oneTime = 0;
 
   if (options.builderType === "apparel") {
     perUnit += STARTER_PRICING.apparel.sizeUpcharge[options.size] || 0;
+    perUnit += STARTER_PRICING.apparel.styleUpcharge[options.shirtStyle] || 0;
     perUnit += STARTER_PRICING.apparel.placement[options.printLocation] || 0;
     perUnit += STARTER_PRICING.apparel.printMethod[options.printMethod] || 0;
+    if (String(options.personalization || "").trim()) {
+      perUnit += STARTER_PRICING.apparel.personalization;
+    }
     if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.apparel.rush;
+  } else if (options.builderType === "tumbler") {
+    resolvedBase = STARTER_PRICING.tumbler.sizePrice[options.size] || basePrice;
+    if (String(options.personalization || "").trim()) {
+      perUnit += STARTER_PRICING.tumbler.personalization;
+    }
+    if (options.fullWrap === "Yes") perUnit += STARTER_PRICING.tumbler.fullWrap;
+    if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.tumbler.rush;
   } else if (options.builderType === "laser") {
+    resolvedBase = STARTER_PRICING.laser.itemPrice[options.laserItemType] || basePrice;
+    if (options.extraEngravingSide === "Yes") {
+      perUnit += STARTER_PRICING.laser.extraEngravingSide;
+    }
     if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.laser.rush;
+    if (options.designFee === "Yes") oneTime += STARTER_PRICING.laser.designFee;
   }
 
-  const unitAmount = basePrice + perUnit;
+  const unitAmount = resolvedBase + perUnit;
   return {
     unitAmount,
     oneTimeAddOn: oneTime,
@@ -95,6 +127,9 @@ export default async (request) => {
         layoutStyle: String(item.options.layoutStyle || "").slice(0,300),
         finishColor: String(item.options.finishColor || "").slice(0,160),
         engravingText: String(item.options.engravingText || "").slice(0,400),
+        fullWrap: String(item.options.fullWrap || "").slice(0,20),
+        extraEngravingSide: String(item.options.extraEngravingSide || "").slice(0,20),
+        designFee: String(item.options.designFee || "").slice(0,20),
         baseUnitPrice: Number(item.options.baseUnitPrice || 0),
         optionUpchargePerUnit: Number(item.options.optionUpchargePerUnit || 0),
         oneTimeAddOns: Number(item.options.oneTimeAddOns || 0),
@@ -185,6 +220,9 @@ export default async (request) => {
       if (p.options?.layoutStyle) form.set(`line_items[${index}][price_data][product_data][metadata][layoutStyle]`, p.options.layoutStyle);
       if (p.options?.finishColor) form.set(`line_items[${index}][price_data][product_data][metadata][finishColor]`, p.options.finishColor);
       if (p.options?.engravingText) form.set(`line_items[${index}][price_data][product_data][metadata][engravingText]`, p.options.engravingText);
+      if (p.options?.fullWrap) form.set(`line_items[${index}][price_data][product_data][metadata][fullWrap]`, p.options.fullWrap);
+      if (p.options?.extraEngravingSide) form.set(`line_items[${index}][price_data][product_data][metadata][extraEngravingSide]`, p.options.extraEngravingSide);
+      if (p.options?.designFee) form.set(`line_items[${index}][price_data][product_data][metadata][designFee]`, p.options.designFee);
       form.set(`line_items[${index}][price_data][product_data][metadata][baseUnitPrice]`, String(Number(p.checkoutAmount||0)-Number((STARTER_PRICING.apparel.sizeUpcharge[p.options?.size]||0)+(STARTER_PRICING.apparel.placement[p.options?.printLocation]||0)+(STARTER_PRICING.apparel.printMethod[p.options?.printMethod]||0))));
       form.set(`line_items[${index}][price_data][product_data][metadata][calculatedUnitPrice]`, String(p.checkoutAmount));
       form.set(`line_items[${index}][price_data][product_data][metadata][oneTimeAddOn]`, String(p.oneTimeAddOn||0));

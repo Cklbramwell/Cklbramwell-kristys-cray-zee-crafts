@@ -1,28 +1,60 @@
 export const BUILDER_PRICING = {
   apparel: {
+    baseReference: 2000,
     sizeUpcharge: {
-      "2XL": 300,
-      "3XL": 400,
-      "4XL": 500,
-      "5XL": 600,
+      "S": 0,
+      "M": 0,
+      "L": 0,
+      "XL": 0,
+      "2XL": 2500,
+      "3XL": 2500,
+      "4XL": 2700,
+      "5XL": 3000,
+    },
+    styleUpcharge: {
+      "Unisex (Adult)": 0,
+      "Women's Fitted": 0,
+      "Youth": 0,
+      "Long Sleeve": 2500,
+      "Hoodie": 3500,
+      "Other": 0,
     },
     placement: {
       "Front Only": 0,
       "Back Only": 0,
-      "Front & Back": 800,
+      "Front & Back": 4500,
       "Left Chest": 0,
-      "Sleeve": 500,
+      "Sleeve": 1000,
     },
     printMethod: {
       "DTF": 0,
       "Screen Print": 0,
       "Vinyl": 0,
     },
+    personalization: 500,
     rush: 2000,
     proof: 0,
   },
-  laser: {
+
+  tumbler: {
+    sizePrice: {
+      "20 oz": 3000,
+      "30 oz": 4000,
+    },
+    personalization: 500,
+    fullWrap: 200,
     rush: 2000,
+  },
+
+  laser: {
+    itemPrice: {
+      "Cutting Board": 4000,
+      "Keychain": 1000,
+      "Acrylic Sign": 2000,
+    },
+    extraEngravingSide: 500,
+    rush: 2000,
+    designFee: 2500,
   },
 };
 
@@ -59,15 +91,12 @@ export const PRINT_LOCATIONS = [
 
 export const PRINT_METHODS = ["DTF", "Screen Print", "Vinyl"];
 
+export const TUMBLER_SIZES = ["20 oz", "30 oz"];
+
 export const LASER_ITEM_TYPES = [
-  "Tumbler",
-  "Wood",
-  "Cast Acrylic",
+  "Cutting Board",
   "Keychain",
-  "Image",
-  "Intricate Cut",
-  "Laser Engraved Card",
-  "Invitation",
+  "Acrylic Sign",
   "Other",
 ];
 
