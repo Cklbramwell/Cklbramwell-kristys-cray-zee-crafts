@@ -1,59 +1,55 @@
 # Kristy's Cray-Zee Crafts
 
-## V7.2.0 — Admin Dashboard + Production Workflow
+## V7.2.1 — Tumbler + Engraving Dropdown Fix
 
-### New Admin Workflow
-- Production board with workflow columns
-- Order search
-- Status filtering
-- Rush / normal filtering
-- Rush order indicators
-- Due-date visibility
-- Designer assignment
-- Printer / production assignment
-- Production due date
-- Proof status
-- Proof URL
-- Production notes
-- Private internal notes
-- Shipping / tracking controls
-- Status history
-- Newest-order dashboard
-- Attention-needed dashboard counters
+### Fixed
+- Stronger automatic product-family detection
+- Tumbler products now reliably open the Drinkware Builder
+- Engraving / laser products now reliably open the Laser Builder
 
-### Production Stages
-1. New Order
-2. Designing
-3. Proof Sent
-4. Proof Approved
-5. Printing
-6. Quality Check
-7. Ready for Pickup
-8. Shipped
-9. Completed
-10. Cancelled
+### Drinkware Dropdowns
+- Drinkware Type
+  - 20 oz Tumbler
+  - 30 oz Tumbler
+  - Coffee Mug
+  - Other Drinkware
+- Wrap / Design Style
+  - Name / Text Only
+  - Logo / Graphic
+  - Front & Back Design
+  - Full Wrap
+  - Other
+- Color / Theme
+- Design Type
+- Artwork choice
+- Personalization
+- Delivery
+- Rush
+- Needed-by date
 
-### Customer Portal Upgrade
-Customers now see:
-- Production progress timeline
-- Current status
-- Proof status
-- Proof link when provided
-- Production due date
-- Tracking details
-- Full configured products and payment totals
+### Engraving Dropdowns
+- Engraving Item
+- Material
+- Engraving Sides
+- Dimensions
+- Layout / Style
+- Finish / Color
+- Design Type
+- Artwork choice
+- Engraving text
+- Delivery
+- Design fee
+- Rush
+- Needed-by date
 
-### New Stripe Orders
-New paid Stripe orders are now created as:
-- Payment Status: paid
-- Production Status: New Order
-- Rush priority automatically detected
-- Due date copied from the customer's Needed By selection
-- Initial status history entry created
-
-### Email Updates
-When configured with Resend, customer emails can now be triggered by:
-- Production status changes
-- Proof status / proof link changes
-- Due-date changes
-- Tracking changes
+### Pricing
+- 20 oz tumbler $30
+- 30 oz tumbler $40
+- Name personalization +$5/item
+- Full wrap +$2/item
+- Cutting Board $40
+- Keychain $10
+- Acrylic Sign $20
+- Two-sided engraving +$5/item
+- Design fee +$25/order
+- Rush +$20/order

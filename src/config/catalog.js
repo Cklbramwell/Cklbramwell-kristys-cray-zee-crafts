@@ -58,11 +58,70 @@ export const PRODUCT_REVIEWS = [
 
 export function detectProductFamily(product) {
   const haystack = [
+    product?.id,
     product?.name,
     product?.category,
     product?.description,
+    product?.emoji,
   ].join(" ").toLowerCase();
 
+  // Strong explicit matches first.
+  if (
+    haystack.includes("tumbler") ||
+    haystack.includes("drinkware") ||
+    haystack.includes("coffee mug") ||
+    haystack.includes("mug") ||
+    haystack.includes("cup") ||
+    haystack.includes("🥤") ||
+    haystack.includes("☕")
+  ) {
+    return "drinkware";
+  }
+
+  if (
+    haystack.includes("laser") ||
+    haystack.includes("engraving") ||
+    haystack.includes("engraved") ||
+    haystack.includes("cutting board") ||
+    haystack.includes("keychain") ||
+    haystack.includes("acrylic sign") ||
+    haystack.includes("slate") ||
+    haystack.includes("wood sign") ||
+    haystack.includes("leather") ||
+    haystack.includes("🔥")
+  ) {
+    return "laser";
+  }
+
+  if (
+    haystack.includes("business card") ||
+    haystack.includes("flyer") ||
+    haystack.includes("banner") ||
+    haystack.includes("yard sign") ||
+    haystack.includes("sticker") ||
+    haystack.includes("magnet") ||
+    haystack.includes("marketing") ||
+    haystack.includes("promotional")
+  ) {
+    return "marketing";
+  }
+
+  if (
+    haystack.includes("shirt") ||
+    haystack.includes("t-shirt") ||
+    haystack.includes("hoodie") ||
+    haystack.includes("sweatshirt") ||
+    haystack.includes("long sleeve") ||
+    haystack.includes("youth") ||
+    haystack.includes("ladies") ||
+    haystack.includes("safety") ||
+    haystack.includes("apparel") ||
+    haystack.includes("👕")
+  ) {
+    return "apparel";
+  }
+
+  // Fall back to configured keyword groups.
   for (const [family, config] of Object.entries(PRODUCT_FAMILIES)) {
     if (config.keywords.some((keyword) => haystack.includes(keyword))) {
       return family;

@@ -86,6 +86,9 @@ export default function CartView({
 export function ConfigurationSummary({ options }) {
   const rows = [
     ["Template", options.templateLabel],
+    ["Drinkware Type", options.drinkwareType],
+    ["Wrap / Design Style", options.wrapStyle],
+    ["Engraving Sides", options.engravingSides],
     ["Product Type", options.marketingProductType],
     ["Size", options.size],
     ["Color", options.color],

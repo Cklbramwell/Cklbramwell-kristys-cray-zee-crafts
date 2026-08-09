@@ -140,6 +140,9 @@ export default async (request) => {
         templateId: String(item.options.templateId || "").slice(0,80),
         templateLabel: String(item.options.templateLabel || "").slice(0,160),
         marketingProductType: String(item.options.marketingProductType || "").slice(0,160),
+        drinkwareType: String(item.options.drinkwareType || "").slice(0,160),
+        wrapStyle: String(item.options.wrapStyle || "").slice(0,160),
+        engravingSides: String(item.options.engravingSides || "").slice(0,80),
         size: String(item.options.size || "").slice(0,120),
         color: String(item.options.color || "").slice(0,120),
         shirtStyle: String(item.options.shirtStyle || "").slice(0,160),
@@ -244,6 +247,9 @@ export default async (request) => {
       if (p.options?.templateId) form.set(`line_items[${index}][price_data][product_data][metadata][templateId]`, p.options.templateId);
       if (p.options?.templateLabel) form.set(`line_items[${index}][price_data][product_data][metadata][templateLabel]`, p.options.templateLabel);
       if (p.options?.marketingProductType) form.set(`line_items[${index}][price_data][product_data][metadata][marketingProductType]`, p.options.marketingProductType);
+      if (p.options?.drinkwareType) form.set(`line_items[${index}][price_data][product_data][metadata][drinkwareType]`, p.options.drinkwareType);
+      if (p.options?.wrapStyle) form.set(`line_items[${index}][price_data][product_data][metadata][wrapStyle]`, p.options.wrapStyle);
+      if (p.options?.engravingSides) form.set(`line_items[${index}][price_data][product_data][metadata][engravingSides]`, p.options.engravingSides);
       if (p.options?.sleevePrint) form.set(`line_items[${index}][price_data][product_data][metadata][sleevePrint]`, p.options.sleevePrint);
       if (p.options?.printLocation) form.set(`line_items[${index}][price_data][product_data][metadata][printLocation]`, p.options.printLocation);
       if (p.options?.printMethod) form.set(`line_items[${index}][price_data][product_data][metadata][printMethod]`, p.options.printMethod);
