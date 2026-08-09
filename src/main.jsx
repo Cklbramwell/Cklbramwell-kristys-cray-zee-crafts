@@ -129,7 +129,169 @@ function App(){
  const Orders=()=> <section className="wrap"><h2>My Orders</h2><div className="card">{orders.length?orders.map(o=><div className="item" key={o.id}><div className="row space"><b>{o.orderNumber||o.id}</b><span className="status">{o.status||"Received"}</span></div><div className="price">{money(o.total||0)}</div></div>):<p className="muted">No orders yet.</p>}</div></section>;
  const Custom=()=> <section className="wrap"><h2>Custom Order</h2>{!user?<div className="card"><p>Sign in first.</p></div>:<form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);await addDoc(collection(db,"customRequests"),{userId:user.uid,email:user.email,type:f.get("type"),quantity:Number(f.get("quantity")||1),size:f.get("size"),colors:f.get("colors"),wording:f.get("wording"),details:f.get("details"),status:"Request Received",createdAt:serverTimestamp()});e.currentTarget.reset();notify("Custom request submitted")}}><div className="field"><label>Product</label><select name="type"><option>Custom Shirt</option><option>Custom Tumbler</option><option>Custom Graphic</option><option>Other</option></select></div><div className="field"><label>Quantity</label><input name="quantity" type="number" defaultValue="1"/></div><div className="field"><label>Size</label><input name="size"/></div><div className="field"><label>Colors</label><input name="colors"/></div><div className="field full"><label>Wording</label><input name="wording"/></div><div className="field full"><label>Details</label><textarea name="details" required/></div><div className="full"><button className="btn primary">Submit</button></div></form>}</section>;
  const Cart=()=> <section className="wrap"><h2>Cart</h2><div className="card">{cart.length?cart.map((i,n)=>{const p=all.find(x=>x.id===i.id);return p?<div className="item row space" key={n}><div><b>{p.name}</b><div className="price">{money(price(p)*i.qty)}</div></div><div><button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button> {i.qty} <button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:x.qty+1}:x))}>+</button></div></div>:null}):<p className="muted">Cart is empty.</p>}<h3>Total: {money(subtotal)}</h3>{cart.length>0&&<><button className="btn primary" disabled={checkoutLoading} onClick={beginCheckout}>{checkoutLoading?"Opening secure checkout...":"Secure Checkout"}</button><p className="muted">Payments are processed securely by Stripe.</p></>}</div></section>;
- const Admin=()=> profile?.role!=="admin"?<section className="wrap"><div className="card">Admin access required.</div></section>:<section className="wrap"><h2>Admin</h2><div className="tabs">{["dashboard","products","orders","requests","customers"].map(t=><button key={t} className={adminTab===t?"active":""} onClick={()=>{setAdminTab(t);setEditing(null)}}>{t[0].toUpperCase()+t.slice(1)}</button>)}</div>{adminTab==="dashboard"&&<div className="metric-grid"><div className="metric">Products<strong>{products.length}</strong></div><div className="metric">Customers<strong>{users.length}</strong></div><div className="metric">Requests<strong>{requests.length}</strong></div><div className="metric">Orders<strong>{adminOrders.length}</strong></div></div>}{adminTab==="products"&&<div className="grid g2"><form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const data={name:f.get("name"),category:f.get("category"),emoji:f.get("emoji")||"🎨",price:Math.round(Number(f.get("price")||0)*100),salePrice:Math.round(Number(f.get("salePrice")||0)*100),description:f.get("description"),sizes:f.get("sizes"),colors:f.get("colors"),imageUrl:f.get("imageUrl"),active:f.get("active")==="on",featured:f.get("featured")==="on",updatedAt:serverTimestamp()};if(editing?.id)await updateDoc(doc(db,"products",editing.id),data);else await addDoc(collection(db,"products"),{...data,createdAt:serverTimestamp()});setEditing(null);notify("Product saved")}}><h3 className="full">{editing?"Edit":"Add"} Product</h3><div className="field full"><label>Name</label><input name="name" defaultValue={editing?.name||""} required/></div><div className="field"><label>Category</label><input name="category" defaultValue={editing?.category||"T-Shirts"}/></div><div className="field"><label>Emoji</label><input name="emoji" defaultValue={editing?.emoji||"🎨"}/></div><div className="field"><label>Price</label><input name="price" type="number" step=".01" defaultValue={editing?.price?(editing.price/100).toFixed(2):""}/></div><div className="field"><label>Sale Price</label><input name="salePrice" type="number" step=".01" defaultValue={editing?.salePrice?(editing.salePrice/100).toFixed(2):""}/></div><div className="field full"><label>Description</label><textarea name="description" defaultValue={editing?.description||""}/></div><div className="field"><label>Sizes</label><input name="sizes" defaultValue={editing?.sizes||""}/></div><div className="field"><label>Colors</label><input name="colors" defaultValue={editing?.colors||""}/></div><div className="field full"><label>Image URL</label><input name="imageUrl" defaultValue={editing?.imageUrl||""}/></div><label><input style={{width:"auto"}} type="checkbox" name="active" defaultChecked={editing?editing.active!==false:true}/> Show in shop</label><label><input style={{width:"auto"}} type="checkbox" name="featured" defaultChecked={editing?.featured||false}/> Featured</label><div className="full"><button className="btn primary">Save Product</button></div></form><div className="card"><h3>Catalog</h3>{products.map(p=><div className="item" key={p.id}><div className="row space"><div><b>{p.name}</b><div className="muted">{p.category} • {money(p.price)}</div></div><div className="row"><button className="btn secondary" onClick={()=>setEditing(p)}>Edit</button><button className="btn danger" onClick={()=>deleteDoc(doc(db,"products",p.id))}>Delete</button></div></div></div>)}</div></div>}{adminTab==="orders"&&<div className="card">{adminOrders.map(o=><div className="item" key={o.id}>{o.orderNumber||o.id} — {o.status||"Received"}</div>)}</div>}{adminTab==="requests"&&<div className="card">{requests.map(r=><div className="item" key={r.id}><b>{r.type}</b><div>{r.email}</div><div>{r.details}</div></div>)}</div>}{adminTab==="customers"&&<div className="card"><table className="admin-table"><tbody>{users.map(u=><tr key={u.id}><td>{u.name}</td><td>{u.email}</td><td>{u.loyaltyPunches||0} punches</td></tr>)}</tbody></table></div>}</section>;
+ const Admin=()=> profile?.role!=="admin"
+ ? <section className="wrap"><div className="card">Admin access required.</div></section>
+ : <section className="wrap">
+    <div className="eyebrow">Owner dashboard</div>
+    <div className="row space">
+      <h2>Business Dashboard</h2>
+      <span className="status">Admin</span>
+    </div>
+
+    <div className="metric-grid">
+      <div className="metric"><small>Products</small><strong>{products.length}</strong></div>
+      <div className="metric"><small>Customers</small><strong>{users.length}</strong></div>
+      <div className="metric"><small>Custom Requests</small><strong>{requests.length}</strong></div>
+      <div className="metric"><small>Orders</small><strong>{adminOrders.length}</strong></div>
+    </div>
+
+    <div className="tabs" style={{marginTop:18}}>
+      {["dashboard","products","orders","requests","customers"].map(t=>
+        <button key={t} className={adminTab===t?"active":""}
+          onClick={()=>{setAdminTab(t);setEditing(null)}}>
+          {t==="requests"?"Custom Requests":t[0].toUpperCase()+t.slice(1)}
+        </button>
+      )}
+    </div>
+
+    {adminTab==="dashboard" &&
+      <div className="grid g2">
+        <div className="card">
+          <h3>Order Summary</h3>
+          <div className="item row space"><span>Paid</span><b>{adminOrders.filter(o=>o.status==="Paid").length}</b></div>
+          <div className="item row space"><span>Designing</span><b>{adminOrders.filter(o=>o.status==="Designing").length}</b></div>
+          <div className="item row space"><span>Ready for Pickup</span><b>{adminOrders.filter(o=>o.status==="Ready for Pickup").length}</b></div>
+          <div className="item row space"><span>Completed</span><b>{adminOrders.filter(o=>o.status==="Completed").length}</b></div>
+        </div>
+        <div className="card">
+          <h3>Revenue</h3>
+          <div className="price">{money(adminOrders.reduce((sum,o)=>sum+(Number(o.total)||0),0))}</div>
+          <p className="muted">Based on orders currently saved in Firestore.</p>
+        </div>
+      </div>
+    }
+
+    {adminTab==="products" &&
+      <div className="grid g2">
+        <form className="card form" onSubmit={async e=>{
+          e.preventDefault();
+          const f=new FormData(e.currentTarget);
+          const data={
+            name:f.get("name"),
+            category:f.get("category"),
+            emoji:f.get("emoji")||"🎨",
+            price:Math.round(Number(f.get("price")||0)*100),
+            salePrice:Math.round(Number(f.get("salePrice")||0)*100),
+            description:f.get("description"),
+            sizes:f.get("sizes"),
+            colors:f.get("colors"),
+            imageUrl:f.get("imageUrl"),
+            active:f.get("active")==="on",
+            featured:f.get("featured")==="on",
+            updatedAt:serverTimestamp()
+          };
+          if(editing?.id) await updateDoc(doc(db,"products",editing.id),data);
+          else await addDoc(collection(db,"products"),{...data,createdAt:serverTimestamp()});
+          setEditing(null);
+          notify("Product saved");
+        }}>
+          <h3 className="full">{editing?"Edit":"Add"} Product</h3>
+          <div className="field full"><label>Name</label><input name="name" defaultValue={editing?.name||""} required/></div>
+          <div className="field"><label>Category</label><input name="category" defaultValue={editing?.category||"T-Shirts"}/></div>
+          <div className="field"><label>Emoji</label><input name="emoji" defaultValue={editing?.emoji||"🎨"}/></div>
+          <div className="field"><label>Price</label><input name="price" type="number" step=".01" defaultValue={editing?.price?(editing.price/100).toFixed(2):""}/></div>
+          <div className="field"><label>Sale Price</label><input name="salePrice" type="number" step=".01" defaultValue={editing?.salePrice?(editing.salePrice/100).toFixed(2):""}/></div>
+          <div className="field full"><label>Description</label><textarea name="description" defaultValue={editing?.description||""}/></div>
+          <div className="field"><label>Sizes</label><input name="sizes" defaultValue={editing?.sizes||""}/></div>
+          <div className="field"><label>Colors</label><input name="colors" defaultValue={editing?.colors||""}/></div>
+          <div className="field full"><label>Image URL</label><input name="imageUrl" defaultValue={editing?.imageUrl||""}/></div>
+          <label><input style={{width:"auto"}} type="checkbox" name="active" defaultChecked={editing?editing.active!==false:true}/> Show in shop</label>
+          <label><input style={{width:"auto"}} type="checkbox" name="featured" defaultChecked={editing?.featured||false}/> Featured</label>
+          <div className="full"><button className="btn primary">Save Product</button></div>
+        </form>
+
+        <div className="card">
+          <h3>Catalog</h3>
+          {products.length?products.map(p=>
+            <div className="item" key={p.id}>
+              <div className="row space">
+                <div><b>{p.name}</b><div className="muted">{p.category} • {money(p.price)}</div></div>
+                <div className="row">
+                  <button className="btn secondary" onClick={()=>setEditing(p)}>Edit</button>
+                  <button className="btn danger" onClick={async()=>{
+                    if(confirm(`Delete ${p.name}?`)) await deleteDoc(doc(db,"products",p.id));
+                  }}>Delete</button>
+                </div>
+              </div>
+            </div>
+          ):<p className="muted">No products yet.</p>}
+        </div>
+      </div>
+    }
+
+    {adminTab==="orders" &&
+      <div className="card">
+        <h3>Orders</h3>
+        {adminOrders.length?adminOrders.map(o=>
+          <div className="item" key={o.id}>
+            <div className="row space">
+              <div><b>{o.orderNumber||o.id}</b><div className="muted">{o.customerEmail||""}</div></div>
+              <select value={o.status||"Paid"} onChange={e=>
+                updateDoc(doc(db,"orders",o.id),{status:e.target.value,updatedAt:serverTimestamp()})
+              }>
+                <option>Paid</option><option>Designing</option><option>Waiting for Approval</option>
+                <option>Ready for Pickup</option><option>Shipped</option><option>Completed</option>
+              </select>
+            </div>
+            <div className="price">{money(o.total||0)}</div>
+          </div>
+        ):<p className="muted">No orders have been saved yet.</p>}
+      </div>
+    }
+
+    {adminTab==="requests" &&
+      <div className="card">
+        <h3>Custom Requests</h3>
+        {requests.length?requests.map(r=>
+          <div className="item" key={r.id}>
+            <div className="row space">
+              <div><b>{r.type||"Custom Request"}</b><div className="muted">{r.email||""} • Qty {r.quantity||1}</div></div>
+              <select value={r.status||"Request Received"} onChange={e=>
+                updateDoc(doc(db,"customRequests",r.id),{status:e.target.value,updatedAt:serverTimestamp()})
+              }>
+                <option>Request Received</option><option>Reviewing</option><option>Designing</option>
+                <option>Waiting for Approval</option><option>Approved</option><option>In Production</option>
+                <option>Ready for Pickup</option><option>Completed</option>
+              </select>
+            </div>
+            <p><b>Size:</b> {r.size||"—"} &nbsp; <b>Colors:</b> {r.colors||"—"}</p>
+            <p><b>Wording:</b> {r.wording||"—"}</p><p>{r.details||""}</p>
+          </div>
+        ):<p className="muted">No custom requests yet.</p>}
+      </div>
+    }
+
+    {adminTab==="customers" &&
+      <div className="card">
+        <h3>Customers & Loyalty</h3>
+        <table className="admin-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Punches</th><th>Rewards</th><th>Adjust</th></tr></thead>
+          <tbody>{users.map(u=>
+            <tr key={u.id}>
+              <td>{u.name||""}</td><td>{u.email||""}</td>
+              <td>{u.loyaltyPunches||0}</td><td>{u.availableRewards||0}</td>
+              <td><div className="row">
+                <button className="btn secondary" onClick={()=>updateDoc(doc(db,"users",u.id),{loyaltyPunches:Math.max(0,Number(u.loyaltyPunches||0)+1)})}>+ Punch</button>
+                <button className="btn secondary" onClick={()=>updateDoc(doc(db,"users",u.id),{loyaltyPunches:Math.max(0,Number(u.loyaltyPunches||0)-1)})}>− Punch</button>
+                <button className="btn secondary" onClick={()=>updateDoc(doc(db,"users",u.id),{availableRewards:Math.max(0,Number(u.availableRewards||0)+1)})}>+ Reward</button>
+                <button className="btn secondary" onClick={()=>updateDoc(doc(db,"users",u.id),{availableRewards:Math.max(0,Number(u.availableRewards||0)-1)})}>− Reward</button>
+              </div></td>
+            </tr>
+          )}</tbody>
+        </table>
+      </div>
+    }
+  </section>;
 
  const pages={home:<Home/>,shop:<ShopPage live={live} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sort={sort} setSort={setSort} shopItems={shopItems} add={add}/>,account:<Account/>,rewards:<Rewards/>,orders:<Orders/>,custom:<Custom/>,cart:<Cart/>,admin:<Admin/>};
  return <><header><div className="brand" onClick={()=>nav("home")}><img src="/assets/kristys-logo.png"/><span>Kristy's Cray-Zee Crafts</span></div><div className="nav"><button onClick={()=>nav("shop")}>Shop</button><button onClick={()=>nav("custom")}>Custom Order</button><button onClick={()=>nav("rewards")}>Rewards</button><button onClick={()=>nav("orders")}>Orders</button>{profile?.role==="admin"&&<button onClick={()=>nav("admin")}>Admin</button>}<button onClick={()=>nav("account")}>{user?"Account":"Sign In"}</button><button onClick={()=>nav("cart")}>Cart <span className="badge">{cart.reduce((s,x)=>s+x.qty,0)}</span></button></div></header><main>{pages[route]||pages.home}</main><footer><img src="/assets/kristys-logo.png"/><div><b>Kristy's Cray-Zee Crafts</b><div>Made with creativity. Crafted with care.</div></div></footer>{message&&<div className="toast">{message}</div>}</>;
