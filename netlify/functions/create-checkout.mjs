@@ -4,6 +4,40 @@ import {
   verifyFirebaseIdToken,
 } from "./_shared.mjs";
 
+
+const STARTER_PRICING = {
+  apparel: {
+    sizeUpcharge: {"2XL":300,"3XL":400,"4XL":500,"5XL":600},
+    placement: {"Front Only":0,"Back Only":0,"Front & Back":800,"Left Chest":0,"Sleeve":500},
+    printMethod: {"DTF":0,"Screen Print":0,"Vinyl":0},
+    rush: 2000
+  },
+  laser: { rush: 2000 }
+};
+
+function calculateConfiguredPricing(basePrice, qty, options) {
+  if (!options) return { unitAmount: basePrice, oneTimeAddOn: 0, lineTotal: basePrice * qty };
+
+  let perUnit = 0;
+  let oneTime = 0;
+
+  if (options.builderType === "apparel") {
+    perUnit += STARTER_PRICING.apparel.sizeUpcharge[options.size] || 0;
+    perUnit += STARTER_PRICING.apparel.placement[options.printLocation] || 0;
+    perUnit += STARTER_PRICING.apparel.printMethod[options.printMethod] || 0;
+    if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.apparel.rush;
+  } else if (options.builderType === "laser") {
+    if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.laser.rush;
+  }
+
+  const unitAmount = basePrice + perUnit;
+  return {
+    unitAmount,
+    oneTimeAddOn: oneTime,
+    lineTotal: (unitAmount * qty) + oneTime
+  };
+}
+
 export default async (request) => {
   if (request.method !== "POST") {
     return Response.json({ error: "Method not allowed." }, { status: 405 });
@@ -40,10 +74,32 @@ export default async (request) => {
       qty: Number(item?.qty),
       lineKey: String(item?.lineKey || "").slice(0,120),
       options: item?.options && typeof item.options === "object" ? {
+        builderType: String(item.options.builderType || "").slice(0,80),
         size: String(item.options.size || "").slice(0,120),
         color: String(item.options.color || "").slice(0,120),
+        shirtStyle: String(item.options.shirtStyle || "").slice(0,160),
+        designType: String(item.options.designType || "").slice(0,160),
+        printLocation: String(item.options.printLocation || "").slice(0,160),
+        printMethod: String(item.options.printMethod || "").slice(0,120),
         personalization: String(item.options.personalization || "").slice(0,400),
         designNotes: String(item.options.designNotes || "").slice(0,400),
+        artworkMethod: String(item.options.artworkMethod || "").slice(0,200),
+        proofBeforePrinting: String(item.options.proofBeforePrinting || "").slice(0,20),
+        rushOrder: String(item.options.rushOrder || "").slice(0,20),
+        deliveryMethod: String(item.options.deliveryMethod || "").slice(0,80),
+        neededBy: String(item.options.neededBy || "").slice(0,40),
+        occasion: String(item.options.occasion || "").slice(0,200),
+        laserItemType: String(item.options.laserItemType || "").slice(0,160),
+        laserMaterial: String(item.options.laserMaterial || "").slice(0,160),
+        dimensions: String(item.options.dimensions || "").slice(0,160),
+        layoutStyle: String(item.options.layoutStyle || "").slice(0,300),
+        finishColor: String(item.options.finishColor || "").slice(0,160),
+        engravingText: String(item.options.engravingText || "").slice(0,400),
+        baseUnitPrice: Number(item.options.baseUnitPrice || 0),
+        optionUpchargePerUnit: Number(item.options.optionUpchargePerUnit || 0),
+        oneTimeAddOns: Number(item.options.oneTimeAddOns || 0),
+        calculatedUnitPrice: Number(item.options.calculatedUnitPrice || 0),
+        calculatedLineTotal: Number(item.options.calculatedLineTotal || 0),
       } : null,
     }));
 
@@ -71,7 +127,16 @@ export default async (request) => {
         return Response.json({ error: `${p.name || "A product"} has an invalid price.` }, { status: 400 });
       }
 
-      products.push({ ...p, id: item.id, qty: item.qty, lineKey:item.lineKey, options:item.options, checkoutAmount: amount });
+      const configured = calculateConfiguredPricing(amount, item.qty, item.options);
+      products.push({
+        ...p,
+        id:item.id,
+        qty:item.qty,
+        lineKey:item.lineKey,
+        options:item.options,
+        checkoutAmount:configured.unitAmount,
+        oneTimeAddOn:configured.oneTimeAddOn
+      });
     }
 
     const originHeader = request.headers.get("origin");
@@ -104,7 +169,40 @@ export default async (request) => {
       if (p.options?.color) form.set(`line_items[${index}][price_data][product_data][metadata][color]`, p.options.color);
       if (p.options?.personalization) form.set(`line_items[${index}][price_data][product_data][metadata][personalization]`, p.options.personalization);
       if (p.options?.designNotes) form.set(`line_items[${index}][price_data][product_data][metadata][designNotes]`, p.options.designNotes);
+      if (p.options?.shirtStyle) form.set(`line_items[${index}][price_data][product_data][metadata][shirtStyle]`, p.options.shirtStyle);
+      if (p.options?.designType) form.set(`line_items[${index}][price_data][product_data][metadata][designType]`, p.options.designType);
+      if (p.options?.printLocation) form.set(`line_items[${index}][price_data][product_data][metadata][printLocation]`, p.options.printLocation);
+      if (p.options?.printMethod) form.set(`line_items[${index}][price_data][product_data][metadata][printMethod]`, p.options.printMethod);
+      if (p.options?.artworkMethod) form.set(`line_items[${index}][price_data][product_data][metadata][artworkMethod]`, p.options.artworkMethod);
+      if (p.options?.proofBeforePrinting) form.set(`line_items[${index}][price_data][product_data][metadata][proofBeforePrinting]`, p.options.proofBeforePrinting);
+      if (p.options?.rushOrder) form.set(`line_items[${index}][price_data][product_data][metadata][rushOrder]`, p.options.rushOrder);
+      if (p.options?.deliveryMethod) form.set(`line_items[${index}][price_data][product_data][metadata][deliveryMethod]`, p.options.deliveryMethod);
+      if (p.options?.neededBy) form.set(`line_items[${index}][price_data][product_data][metadata][neededBy]`, p.options.neededBy);
+      if (p.options?.occasion) form.set(`line_items[${index}][price_data][product_data][metadata][occasion]`, p.options.occasion);
+      if (p.options?.laserItemType) form.set(`line_items[${index}][price_data][product_data][metadata][laserItemType]`, p.options.laserItemType);
+      if (p.options?.laserMaterial) form.set(`line_items[${index}][price_data][product_data][metadata][laserMaterial]`, p.options.laserMaterial);
+      if (p.options?.dimensions) form.set(`line_items[${index}][price_data][product_data][metadata][dimensions]`, p.options.dimensions);
+      if (p.options?.layoutStyle) form.set(`line_items[${index}][price_data][product_data][metadata][layoutStyle]`, p.options.layoutStyle);
+      if (p.options?.finishColor) form.set(`line_items[${index}][price_data][product_data][metadata][finishColor]`, p.options.finishColor);
+      if (p.options?.engravingText) form.set(`line_items[${index}][price_data][product_data][metadata][engravingText]`, p.options.engravingText);
+      form.set(`line_items[${index}][price_data][product_data][metadata][baseUnitPrice]`, String(Number(p.checkoutAmount||0)-Number((STARTER_PRICING.apparel.sizeUpcharge[p.options?.size]||0)+(STARTER_PRICING.apparel.placement[p.options?.printLocation]||0)+(STARTER_PRICING.apparel.printMethod[p.options?.printMethod]||0))));
+      form.set(`line_items[${index}][price_data][product_data][metadata][calculatedUnitPrice]`, String(p.checkoutAmount));
+      form.set(`line_items[${index}][price_data][product_data][metadata][oneTimeAddOn]`, String(p.oneTimeAddOn||0));
     });
+
+    let extraIndex = products.length;
+    products.forEach((p) => {
+      if (p.oneTimeAddOn > 0) {
+        form.set(`line_items[${extraIndex}][quantity]`, "1");
+        form.set(`line_items[${extraIndex}][price_data][currency]`, "usd");
+        form.set(`line_items[${extraIndex}][price_data][unit_amount]`, String(p.oneTimeAddOn));
+        form.set(`line_items[${extraIndex}][price_data][product_data][name]`, `${p.name || "Custom Product"} - Rush / Order Add-on`);
+        form.set(`line_items[${extraIndex}][price_data][product_data][metadata][parentFirestoreProductId]`, p.id);
+        form.set(`line_items[${extraIndex}][price_data][product_data][metadata][isOrderAddOn]`, "true");
+        extraIndex += 1;
+      }
+    });
+
 
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
