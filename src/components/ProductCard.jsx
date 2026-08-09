@@ -1,6 +1,6 @@
 import { money, productPrice } from "../utils";
 
-export default function ProductCard({ product, onCustomize, onQuickAdd }) {
+export default function ProductCard({ product, onCustomize }) {
   const price = productPrice(product);
 
   return (
@@ -26,9 +26,6 @@ export default function ProductCard({ product, onCustomize, onQuickAdd }) {
         <div className="row product-actions">
           <button className="btn primary" onClick={() => onCustomize(product.id)}>
             Design / Customize
-          </button>
-          <button className="btn secondary" onClick={() => onQuickAdd(product.id)}>
-            Add Base Item
           </button>
         </div>
       </div>

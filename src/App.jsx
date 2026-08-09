@@ -182,17 +182,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const quickAdd = (id) => {
-    setCart((current) => {
-      const next = [...current];
-      const existing = next.find((line) => line.id === id && !line.options);
-      if (existing) existing.qty += 1;
-      else next.push({ id, qty: 1 });
-      return next;
-    });
-    notify("Item added to cart");
-  };
-
   const openBuilder = (id) => {
     setDesignProductId(id);
     navigate("design");
@@ -291,7 +280,6 @@ export default function App() {
             sort={sort}
             setSort={setSort}
             onCustomize={openBuilder}
-            onQuickAdd={quickAdd}
           />
         );
 
@@ -382,7 +370,6 @@ export default function App() {
             products={liveProducts}
             navigate={navigate}
             onCustomize={openBuilder}
-            onQuickAdd={quickAdd}
           />
         );
     }

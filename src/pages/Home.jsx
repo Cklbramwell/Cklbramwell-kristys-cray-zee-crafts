@@ -1,6 +1,6 @@
 import ProductCard from "../components/ProductCard";
 
-export default function Home({ products, navigate, onCustomize, onQuickAdd }) {
+export default function Home({ products, navigate, onCustomize }) {
   const featured = products.filter((product) => product.featured).slice(0, 3);
 
   return (
@@ -38,7 +38,6 @@ export default function Home({ products, navigate, onCustomize, onQuickAdd }) {
               key={product.id}
               product={product}
               onCustomize={onCustomize}
-              onQuickAdd={onQuickAdd}
             />
           ))}
         </div>

@@ -9,7 +9,6 @@ export default function Shop({
   sort,
   setSort,
   onCustomize,
-  onQuickAdd,
 }) {
   const categories = ["All", ...new Set(products.map((product) => product.category))];
 
@@ -74,7 +73,6 @@ export default function Shop({
             key={product.id}
             product={product}
             onCustomize={onCustomize}
-            onQuickAdd={onQuickAdd}
           />
         ))}
       </div>
