@@ -1,5 +1,6 @@
 import {
   firestoreCreateWithId,
+  sendEmail,
   verifyStripeSignature,
 } from "./_shared.mjs";
 
@@ -120,6 +121,37 @@ export default async (request) => {
       session.id,
       order
     );
+
+    if (!result?.alreadyExists) {
+      const itemLines = items.map(i =>
+        `<li>${i.name} — Qty ${i.quantity} — $${(i.amountTotal/100).toFixed(2)}</li>`
+      ).join("");
+
+      await sendEmail({
+        to: order.customerEmail,
+        subject: `Order ${order.orderNumber} received`,
+        html: `<h2>Thank you for your order!</h2>
+          <p>Your order <strong>${order.orderNumber}</strong> has been received and paid.</p>
+          <ul>${itemLines}</ul>
+          <p><strong>Total:</strong> $${(order.total/100).toFixed(2)}</p>
+          <p>You can sign in at endlessbv.com to see your order status and tracking details.</p>`,
+        text: `Thank you for your order. ${order.orderNumber} has been received and paid. Total: $${(order.total/100).toFixed(2)}.`
+      });
+
+      const adminEmail = process.env.ADMIN_ORDER_EMAIL;
+      if (adminEmail) {
+        await sendEmail({
+          to: adminEmail,
+          subject: `New paid order ${order.orderNumber}`,
+          html: `<h2>New paid order</h2>
+            <p><strong>${order.customerName || order.customerEmail}</strong></p>
+            <p>${order.customerEmail}</p>
+            <ul>${itemLines}</ul>
+            <p><strong>Total:</strong> $${(order.total/100).toFixed(2)}</p>`,
+          text: `New paid order ${order.orderNumber} from ${order.customerEmail}. Total: $${(order.total/100).toFixed(2)}.`
+        });
+      }
+    }
 
     return Response.json({
       received: true,
