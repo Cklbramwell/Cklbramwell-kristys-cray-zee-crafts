@@ -1,22 +1,21 @@
-# Kristy's Cray-Zee Crafts V6
+# Kristy's Cray-Zee Crafts V7.0
 
-Modular React/Vite storefront.
+Professional React + Firebase + Netlify + Stripe storefront.
 
-## Structure
+## Key files
+- `src/App.jsx` — application state and navigation
+- `src/pages/Home.jsx` — professional homepage
+- `src/pages/Shop.jsx` — category shop
+- `src/pages/Inspiration.jsx` — Design Inspiration
+- `src/components/ProductBuilder.jsx` — guided builder
+- `src/config/storefront.js` — categories, inspirations, testimonials
+- `src/config/pricing.js` — pricing configuration
+- `netlify/functions/create-checkout.mjs` — server-side Stripe pricing/checkout
+- `netlify/functions/stripe-webhook.mjs` — paid order fulfillment
 
-- `src/App.jsx` — app state, Firebase listeners, routing
-- `src/components/ProductBuilder.jsx` — guided product builder
-- `src/components/ProductCard.jsx` — product card
-- `src/components/CartView.jsx` — configured cart
-- `src/components/OrderDetails.jsx` — customer/admin order details
-- `src/pages/*` — storefront and dashboard pages
-- `src/config/pricing.js` — editable starter pricing
-- `netlify/functions/*` — Stripe/Firebase server functions
+## Deployment
+Netlify build: `npm run build`
+Publish: `dist`
+Functions: `netlify/functions`
 
-## Netlify
-
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Functions directory: `netlify/functions`
-
-Keep your existing environment variables.
+Keep your current Netlify environment variables.

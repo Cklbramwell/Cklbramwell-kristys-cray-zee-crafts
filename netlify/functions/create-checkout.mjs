@@ -7,24 +7,24 @@ import {
 
 const STARTER_PRICING = {
   apparel: {
-    sizeUpcharge: {"S":0,"M":0,"L":0,"XL":0,"2XL":2500,"3XL":2500,"4XL":2700,"5XL":3000},
-    styleUpcharge: {"Unisex (Adult)":0,"Women's Fitted":0,"Youth":0,"Long Sleeve":2500,"Hoodie":3500,"Other":0},
-    placement: {"Front Only":0,"Back Only":0,"Front & Back":4500,"Left Chest":0,"Sleeve":1000},
-    printMethod: {"DTF":0,"Screen Print":0,"Vinyl":0},
-    personalization: 500,
-    rush: 2000
+    shortSleeveBaseBySize: {"S":2000,"M":2000,"L":2000,"XL":2000,"2XL":2500,"3XL":2500,"4XL":2700,"5XL":3000},
+    styleBase: {"Unisex (Adult)":null,"Women's Fitted":null,"Youth":null,"Long Sleeve":2500,"Hoodie":3500,"Other":null},
+    placementBase: {"Front Only":null,"Back Only":null,"Front & Back":4500,"Left Chest":null,"Sleeve":null},
+    sleevePrintAddOn: 1000,
+    personalizationAddOn: 500,
+    rushAddOn: 2000
   },
   tumbler: {
-    sizePrice: {"20 oz":3000,"30 oz":4000},
-    personalization: 500,
-    fullWrap: 200,
-    rush: 2000
+    sizeBase: {"20 oz":3000,"30 oz":4000},
+    personalizationAddOn: 500,
+    fullWrapAddOn: 200,
+    rushAddOn: 2000
   },
   laser: {
-    itemPrice: {"Cutting Board":4000,"Keychain":1000,"Acrylic Sign":2000},
-    extraEngravingSide: 500,
-    rush: 2000,
-    designFee: 2500
+    itemBase: {"Cutting Board":4000,"Keychain":1000,"Acrylic Sign":2000},
+    extraEngravingSideAddOn: 500,
+    rushAddOn: 2000,
+    designFeeAddOn: 2500
   }
 };
 
@@ -38,28 +38,57 @@ function calculateConfiguredPricing(basePrice, qty, options) {
   let oneTime = 0;
 
   if (options.builderType === "apparel") {
-    perUnit += STARTER_PRICING.apparel.sizeUpcharge[options.size] || 0;
-    perUnit += STARTER_PRICING.apparel.styleUpcharge[options.shirtStyle] || 0;
-    perUnit += STARTER_PRICING.apparel.placement[options.printLocation] || 0;
-    perUnit += STARTER_PRICING.apparel.printMethod[options.printMethod] || 0;
-    if (String(options.personalization || "").trim()) {
-      perUnit += STARTER_PRICING.apparel.personalization;
+    resolvedBase =
+      STARTER_PRICING.apparel.shortSleeveBaseBySize[options.size] || basePrice;
+
+    const styleBase = STARTER_PRICING.apparel.styleBase[options.shirtStyle];
+    if (styleBase != null) resolvedBase = styleBase;
+
+    const placementBase =
+      STARTER_PRICING.apparel.placementBase[options.printLocation];
+    if (placementBase != null) resolvedBase = placementBase;
+
+    if (options.printLocation === "Sleeve") {
+      perUnit += STARTER_PRICING.apparel.sleevePrintAddOn;
     }
-    if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.apparel.rush;
+
+    if (String(options.personalization || "").trim()) {
+      perUnit += STARTER_PRICING.apparel.personalizationAddOn;
+    }
+
+    if (options.rushOrder === "Yes") {
+      oneTime += STARTER_PRICING.apparel.rushAddOn;
+    }
   } else if (options.builderType === "tumbler") {
-    resolvedBase = STARTER_PRICING.tumbler.sizePrice[options.size] || basePrice;
+    resolvedBase =
+      STARTER_PRICING.tumbler.sizeBase[options.size] || basePrice;
+
     if (String(options.personalization || "").trim()) {
-      perUnit += STARTER_PRICING.tumbler.personalization;
+      perUnit += STARTER_PRICING.tumbler.personalizationAddOn;
     }
-    if (options.fullWrap === "Yes") perUnit += STARTER_PRICING.tumbler.fullWrap;
-    if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.tumbler.rush;
+
+    if (options.fullWrap === "Yes") {
+      perUnit += STARTER_PRICING.tumbler.fullWrapAddOn;
+    }
+
+    if (options.rushOrder === "Yes") {
+      oneTime += STARTER_PRICING.tumbler.rushAddOn;
+    }
   } else if (options.builderType === "laser") {
-    resolvedBase = STARTER_PRICING.laser.itemPrice[options.laserItemType] || basePrice;
+    resolvedBase =
+      STARTER_PRICING.laser.itemBase[options.laserItemType] || basePrice;
+
     if (options.extraEngravingSide === "Yes") {
-      perUnit += STARTER_PRICING.laser.extraEngravingSide;
+      perUnit += STARTER_PRICING.laser.extraEngravingSideAddOn;
     }
-    if (options.rushOrder === "Yes") oneTime += STARTER_PRICING.laser.rush;
-    if (options.designFee === "Yes") oneTime += STARTER_PRICING.laser.designFee;
+
+    if (options.rushOrder === "Yes") {
+      oneTime += STARTER_PRICING.laser.rushAddOn;
+    }
+
+    if (options.designFee === "Yes") {
+      oneTime += STARTER_PRICING.laser.designFeeAddOn;
+    }
   }
 
   const unitAmount = resolvedBase + perUnit;

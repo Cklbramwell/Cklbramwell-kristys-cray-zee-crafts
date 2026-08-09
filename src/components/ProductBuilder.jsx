@@ -11,7 +11,7 @@ import {
 } from "../config/pricing";
 import { money, productPrice, splitOptions } from "../utils";
 
-export default function ProductBuilder({ product, onAdd, onBack }) {
+export default function ProductBuilder({ product, onAdd, onBack, preset = null }) {
   const category = String(product?.category || "").toLowerCase();
   const name = String(product?.name || "").toLowerCase();
 
@@ -50,7 +50,7 @@ export default function ProductBuilder({ product, onAdd, onBack }) {
   const [size, setSize] = useState(isTumbler ? "20 oz" : (sizeOptions[0] || ""));
   const [color, setColor] = useState(colorOptions[0] || "");
   const [shirtStyle, setShirtStyle] = useState("Unisex (Adult)");
-  const [designType, setDesignType] = useState("Custom");
+  const [designType, setDesignType] = useState(preset?.designType || "Custom");
   const [printLocation, setPrintLocation] = useState("Front Only");
   const [printMethod, setPrintMethod] = useState("DTF");
   const [personalization, setPersonalization] = useState("");
@@ -86,34 +86,48 @@ export default function ProductBuilder({ product, onAdd, onBack }) {
     let oneTimeAddOns = 0;
 
     if (isApparel) {
-      optionUpchargePerUnit += BUILDER_PRICING.apparel.sizeUpcharge[size] || 0;
-      optionUpchargePerUnit += BUILDER_PRICING.apparel.styleUpcharge[shirtStyle] || 0;
-      optionUpchargePerUnit += BUILDER_PRICING.apparel.placement[printLocation] || 0;
-      optionUpchargePerUnit += BUILDER_PRICING.apparel.printMethod[printMethod] || 0;
-      if (personalization.trim()) {
-        optionUpchargePerUnit += BUILDER_PRICING.apparel.personalization;
+      const shortSleeveBase =
+        BUILDER_PRICING.apparel.shortSleeveBaseBySize[size] || baseUnitPrice;
+
+      baseUnitPrice = shortSleeveBase;
+
+      const styleBase = BUILDER_PRICING.apparel.styleBase[shirtStyle];
+      if (styleBase != null) baseUnitPrice = styleBase;
+
+      const placementBase = BUILDER_PRICING.apparel.placementBase[printLocation];
+      if (placementBase != null) baseUnitPrice = placementBase;
+
+      if (printLocation === "Sleeve") {
+        optionUpchargePerUnit += BUILDER_PRICING.apparel.sleevePrintAddOn;
       }
-      if (rushOrder) oneTimeAddOns += BUILDER_PRICING.apparel.rush;
-      if (proofBeforePrinting) oneTimeAddOns += BUILDER_PRICING.apparel.proof;
+
+      if (personalization.trim()) {
+        optionUpchargePerUnit += BUILDER_PRICING.apparel.personalizationAddOn;
+      }
+
+      if (rushOrder) oneTimeAddOns += BUILDER_PRICING.apparel.rushAddOn;
+      if (proofBeforePrinting) {
+        oneTimeAddOns += BUILDER_PRICING.apparel.proofAddOn;
+      }
     }
 
     if (isTumbler) {
-      baseUnitPrice = BUILDER_PRICING.tumbler.sizePrice[size] || baseUnitPrice;
+      baseUnitPrice = BUILDER_PRICING.tumbler.sizeBase[size] || baseUnitPrice;
       if (personalization.trim()) {
-        optionUpchargePerUnit += BUILDER_PRICING.tumbler.personalization;
+        optionUpchargePerUnit += BUILDER_PRICING.tumbler.personalizationAddOn;
       }
-      if (fullWrap) optionUpchargePerUnit += BUILDER_PRICING.tumbler.fullWrap;
-      if (rushOrder) oneTimeAddOns += BUILDER_PRICING.tumbler.rush;
+      if (fullWrap) optionUpchargePerUnit += BUILDER_PRICING.tumbler.fullWrapAddOn;
+      if (rushOrder) oneTimeAddOns += BUILDER_PRICING.tumbler.rushAddOn;
     }
 
     if (isLaser) {
-      const preset = BUILDER_PRICING.laser.itemPrice[laserItemType];
+      const preset = BUILDER_PRICING.laser.itemBase[laserItemType];
       if (preset) baseUnitPrice = preset;
       if (extraEngravingSide) {
-        optionUpchargePerUnit += BUILDER_PRICING.laser.extraEngravingSide;
+        optionUpchargePerUnit += BUILDER_PRICING.laser.extraEngravingSideAddOn;
       }
-      if (rushOrder) oneTimeAddOns += BUILDER_PRICING.laser.rush;
-      if (designFee) oneTimeAddOns += BUILDER_PRICING.laser.designFee;
+      if (rushOrder) oneTimeAddOns += BUILDER_PRICING.laser.rushAddOn;
+      if (designFee) oneTimeAddOns += BUILDER_PRICING.laser.designFeeAddOn;
     }
 
     const calculatedUnitPrice = baseUnitPrice + optionUpchargePerUnit;

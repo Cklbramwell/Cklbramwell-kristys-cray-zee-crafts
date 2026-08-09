@@ -1,60 +1,55 @@
 export const BUILDER_PRICING = {
   apparel: {
-    baseReference: 2000,
-    sizeUpcharge: {
-      "S": 0,
-      "M": 0,
-      "L": 0,
-      "XL": 0,
+    shortSleeveBaseBySize: {
+      "S": 2000,
+      "M": 2000,
+      "L": 2000,
+      "XL": 2000,
       "2XL": 2500,
       "3XL": 2500,
       "4XL": 2700,
       "5XL": 3000,
     },
-    styleUpcharge: {
-      "Unisex (Adult)": 0,
-      "Women's Fitted": 0,
-      "Youth": 0,
+    styleBase: {
+      "Unisex (Adult)": null,
+      "Women's Fitted": null,
+      "Youth": null,
       "Long Sleeve": 2500,
       "Hoodie": 3500,
-      "Other": 0,
+      "Other": null,
     },
-    placement: {
-      "Front Only": 0,
-      "Back Only": 0,
+    placementBase: {
+      "Front Only": null,
+      "Back Only": null,
       "Front & Back": 4500,
-      "Left Chest": 0,
-      "Sleeve": 1000,
+      "Left Chest": null,
+      "Sleeve": null,
     },
-    printMethod: {
-      "DTF": 0,
-      "Screen Print": 0,
-      "Vinyl": 0,
-    },
-    personalization: 500,
-    rush: 2000,
-    proof: 0,
+    sleevePrintAddOn: 1000,
+    personalizationAddOn: 500,
+    rushAddOn: 2000,
+    proofAddOn: 0,
   },
 
   tumbler: {
-    sizePrice: {
+    sizeBase: {
       "20 oz": 3000,
       "30 oz": 4000,
     },
-    personalization: 500,
-    fullWrap: 200,
-    rush: 2000,
+    personalizationAddOn: 500,
+    fullWrapAddOn: 200,
+    rushAddOn: 2000,
   },
 
   laser: {
-    itemPrice: {
+    itemBase: {
       "Cutting Board": 4000,
       "Keychain": 1000,
       "Acrylic Sign": 2000,
     },
-    extraEngravingSide: 500,
-    rush: 2000,
-    designFee: 2500,
+    extraEngravingSideAddOn: 500,
+    rushAddOn: 2000,
+    designFeeAddOn: 2500,
   },
 };
 

@@ -18,6 +18,8 @@ import Orders from "./pages/Orders";
 import Rewards from "./pages/Rewards";
 import CustomOrder from "./pages/CustomOrder";
 import Admin from "./pages/Admin";
+import Inspiration from "./pages/Inspiration";
+import { CATEGORIES } from "./config/storefront";
 import { auth, db } from "./firebase";
 import { productPrice } from "./utils";
 
@@ -75,9 +77,10 @@ export default function App() {
   const [adminTab, setAdminTab] = useState("dashboard");
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("featured");
   const [designProductId, setDesignProductId] = useState(null);
+  const [builderPreset, setBuilderPreset] = useState(null);
   const [message, setMessage] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [cart, setCart] = useState(() => {
@@ -182,9 +185,35 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const openBuilder = (id) => {
+  const openBuilder = (id, preset = null) => {
     setDesignProductId(id);
+    setBuilderPreset(preset);
     navigate("design");
+  };
+
+  const openCategory = (categoryId) => {
+    setCategory(categoryId);
+    navigate("shop");
+  };
+
+  const openInspiration = (inspiration) => {
+    const category = CATEGORIES.find((item) => item.id === inspiration.categoryId);
+    const product = liveProducts.find((candidate) => {
+      const haystack = [
+        candidate.name,
+        candidate.category,
+        candidate.description,
+      ].join(" ").toLowerCase();
+
+      return category?.keywords.some((keyword) => haystack.includes(keyword));
+    }) || liveProducts[0];
+
+    if (!product) {
+      notify("Add a product in Admin before using Design Inspiration.");
+      return;
+    }
+
+    openBuilder(product.id, { designType: inspiration.designType });
   };
 
   const addConfigured = (product, options, qty) => {
@@ -289,6 +318,7 @@ export default function App() {
             product={allProducts.find((item) => item.id === designProductId)}
             onAdd={addConfigured}
             onBack={() => navigate("shop")}
+            preset={builderPreset}
           />
         );
 
@@ -307,6 +337,9 @@ export default function App() {
 
       case "rewards":
         return <Rewards user={user} profile={profile} />;
+
+      case "inspiration":
+        return <Inspiration onCustomize={openInspiration} />;
 
       case "custom":
         return <CustomOrder user={user} notify={notify} />;
@@ -370,6 +403,8 @@ export default function App() {
             products={liveProducts}
             navigate={navigate}
             onCustomize={openBuilder}
+            onCategory={openCategory}
+            onInspiration={openInspiration}
           />
         );
     }
@@ -382,6 +417,7 @@ export default function App() {
         isAdmin={profile?.role === "admin"}
         cartCount={cart.reduce((sum, line) => sum + Number(line.qty || 0), 0)}
         navigate={navigate}
+        onCategory={openCategory}
       />
 
       <main>{page}</main>
@@ -391,6 +427,7 @@ export default function App() {
         <div>
           <b>Kristy's Cray-Zee Crafts</b>
           <div>Made with creativity. Crafted with care.</div>
+          <div className="muted">832-901-3433 • Design@Endlessbv.com</div>
         </div>
       </footer>
 
