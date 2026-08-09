@@ -10,7 +10,7 @@ function stripeAuthHeaders(secret) {
 
 async function getStripeLineItems(stripeSecret, sessionId) {
   const response = await fetch(
-    `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}/line_items?limit=100`,
+    `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}/line_items?limit=100&expand[]=data.price.product`,
     { headers: stripeAuthHeaders(stripeSecret) }
   );
   const data = await response.json();
@@ -79,13 +79,22 @@ export default async (request) => {
     }
 
     const lineItems = await getStripeLineItems(stripeSecret, session.id);
-    const items = lineItems.map((item) => ({
-      name: item.description || "Custom Product",
-      quantity: Number(item.quantity || 0),
-      unitAmount: item.price?.unit_amount ?? null,
-      amountTotal: Number(item.amount_total || 0),
-      currency: item.currency || session.currency || "usd",
-    }));
+    const items = lineItems.map((item) => {
+      const product = item.price?.product && typeof item.price.product === "object"
+        ? item.price.product
+        : null;
+
+      return {
+        productId: product?.metadata?.firestoreProductId || "",
+        stripeProductId: product?.id || "",
+        name: product?.name || item.description || "Custom Product",
+        description: product?.description || "",
+        quantity: Number(item.quantity || 0),
+        unitAmount: item.price?.unit_amount ?? null,
+        amountTotal: Number(item.amount_total || 0),
+        currency: item.currency || session.currency || "usd",
+      };
+    });
 
     const shipping =
       session.collected_information?.shipping_details ||
