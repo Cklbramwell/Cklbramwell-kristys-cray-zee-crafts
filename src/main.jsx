@@ -61,13 +61,25 @@ function App(){
  const [route,setRoute]=useState("home"),[user,setUser]=useState(null),[profile,setProfile]=useState(null);
  const [products,setProducts]=useState([]),[orders,setOrders]=useState([]),[adminOrders,setAdminOrders]=useState([]),[requests,setRequests]=useState([]),[users,setUsers]=useState([]);
  const [adminTab,setAdminTab]=useState("dashboard"),[search,setSearch]=useState(""),[category,setCategory]=useState("All"),[sort,setSort]=useState("featured");
- const [editing,setEditing]=useState(null),[message,setMessage]=useState("");
+ const [editing,setEditing]=useState(null),[message,setMessage]=useState(""),[checkoutLoading,setCheckoutLoading]=useState(false);
  const [cart,setCart]=useState(()=>JSON.parse(localStorage.getItem("kcc_v5_cart")||"[]"));
  const all=products.length?products:fallback;
  const live=all.filter(p=>p.active!==false);
 
  useEffect(()=>localStorage.setItem("kcc_v5_cart",JSON.stringify(cart)),[cart]);
  useEffect(()=>{const t=message?setTimeout(()=>setMessage(""),2400):null;return()=>t&&clearTimeout(t)},[message]);
+ useEffect(()=>{
+   const params=new URLSearchParams(window.location.search);
+   const result=params.get("checkout");
+   if(result==="success"){
+     setCart([]);
+     setMessage("Payment successful! Your cart has been cleared.");
+     window.history.replaceState({},document.title,window.location.pathname);
+   }else if(result==="cancel"){
+     setMessage("Checkout canceled. Your cart is still saved.");
+     window.history.replaceState({},document.title,window.location.pathname);
+   }
+ },[]);
  useEffect(()=>onSnapshot(collection(db,"products"),s=>setProducts(s.docs.map(d=>({id:d.id,...d.data()}))),()=>{}),[]);
  useEffect(()=>onAuthStateChanged(auth,async u=>{setUser(u);setProfile(null);if(!u)return;const s=await getDoc(doc(db,"users",u.uid));setProfile(s.exists()?s.data():null)}),[]);
  useEffect(()=>{if(!user)return;return onSnapshot(query(collection(db,"orders"),where("userId","==",user.uid)),s=>setOrders(s.docs.map(d=>({id:d.id,...d.data()}))))},[user]);
@@ -79,6 +91,27 @@ function App(){
 
  const notify=m=>setMessage(m),nav=r=>{setRoute(r);window.scrollTo(0,0)};
  const add=id=>setCart(c=>{const n=[...c],f=n.find(x=>x.id===id);f?f.qty++:n.push({id,qty:1});return n});
+ const beginCheckout=async()=>{
+   if(!cart.length)return notify("Your cart is empty.");
+   setCheckoutLoading(true);
+   try{
+     const response=await fetch("/.netlify/functions/create-checkout",{
+       method:"POST",
+       headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({
+         items:cart.map(({id,qty})=>({id,qty})),
+         customerEmail:user?.email||""
+       })
+     });
+     const data=await response.json();
+     if(!response.ok)throw new Error(data.error||"Unable to start checkout.");
+     if(!data.url)throw new Error("Stripe did not return a checkout URL.");
+     window.location.assign(data.url);
+   }catch(error){
+     notify(error.message||"Unable to start checkout.");
+     setCheckoutLoading(false);
+   }
+ };
  const subtotal=useMemo(()=>cart.reduce((s,i)=>{const p=all.find(x=>x.id===i.id);return s+(p?price(p)*i.qty:0)},0),[cart,all]);
  const shopItems=useMemo(()=>{
    let x=[...live];
@@ -95,7 +128,7 @@ function App(){
  const Rewards=()=> <section className="wrap"><h2>Cray-Zee Loyalty Card</h2><div className="card">{!user?<p>Sign in to view your rewards.</p>:<><div className="punches">{Array.from({length:10},(_,i)=><div className={`punch ${i<(profile?.loyaltyPunches||0)?"on":""}`} key={i}>{i<(profile?.loyaltyPunches||0)?"★":i+1}</div>)}</div><div className="notice">{profile?.availableRewards||0} rewards available</div></>}</div></section>;
  const Orders=()=> <section className="wrap"><h2>My Orders</h2><div className="card">{orders.length?orders.map(o=><div className="item" key={o.id}><div className="row space"><b>{o.orderNumber||o.id}</b><span className="status">{o.status||"Received"}</span></div><div className="price">{money(o.total||0)}</div></div>):<p className="muted">No orders yet.</p>}</div></section>;
  const Custom=()=> <section className="wrap"><h2>Custom Order</h2>{!user?<div className="card"><p>Sign in first.</p></div>:<form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);await addDoc(collection(db,"customRequests"),{userId:user.uid,email:user.email,type:f.get("type"),quantity:Number(f.get("quantity")||1),size:f.get("size"),colors:f.get("colors"),wording:f.get("wording"),details:f.get("details"),status:"Request Received",createdAt:serverTimestamp()});e.currentTarget.reset();notify("Custom request submitted")}}><div className="field"><label>Product</label><select name="type"><option>Custom Shirt</option><option>Custom Tumbler</option><option>Custom Graphic</option><option>Other</option></select></div><div className="field"><label>Quantity</label><input name="quantity" type="number" defaultValue="1"/></div><div className="field"><label>Size</label><input name="size"/></div><div className="field"><label>Colors</label><input name="colors"/></div><div className="field full"><label>Wording</label><input name="wording"/></div><div className="field full"><label>Details</label><textarea name="details" required/></div><div className="full"><button className="btn primary">Submit</button></div></form>}</section>;
- const Cart=()=> <section className="wrap"><h2>Cart</h2><div className="card">{cart.length?cart.map((i,n)=>{const p=all.find(x=>x.id===i.id);return p?<div className="item row space" key={n}><div><b>{p.name}</b><div className="price">{money(price(p)*i.qty)}</div></div><div><button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button> {i.qty} <button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:x.qty+1}:x))}>+</button></div></div>:null}):<p className="muted">Cart is empty.</p>}<h3>Total: {money(subtotal)}</h3></div></section>;
+ const Cart=()=> <section className="wrap"><h2>Cart</h2><div className="card">{cart.length?cart.map((i,n)=>{const p=all.find(x=>x.id===i.id);return p?<div className="item row space" key={n}><div><b>{p.name}</b><div className="price">{money(price(p)*i.qty)}</div></div><div><button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button> {i.qty} <button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:x.qty+1}:x))}>+</button></div></div>:null}):<p className="muted">Cart is empty.</p>}<h3>Total: {money(subtotal)}</h3>{cart.length>0&&<><button className="btn primary" disabled={checkoutLoading} onClick={beginCheckout}>{checkoutLoading?"Opening secure checkout...":"Secure Checkout"}</button><p className="muted">Payments are processed securely by Stripe.</p></>}</div></section>;
  const Admin=()=> profile?.role!=="admin"?<section className="wrap"><div className="card">Admin access required.</div></section>:<section className="wrap"><h2>Admin</h2><div className="tabs">{["dashboard","products","orders","requests","customers"].map(t=><button key={t} className={adminTab===t?"active":""} onClick={()=>{setAdminTab(t);setEditing(null)}}>{t[0].toUpperCase()+t.slice(1)}</button>)}</div>{adminTab==="dashboard"&&<div className="metric-grid"><div className="metric">Products<strong>{products.length}</strong></div><div className="metric">Customers<strong>{users.length}</strong></div><div className="metric">Requests<strong>{requests.length}</strong></div><div className="metric">Orders<strong>{adminOrders.length}</strong></div></div>}{adminTab==="products"&&<div className="grid g2"><form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const data={name:f.get("name"),category:f.get("category"),emoji:f.get("emoji")||"🎨",price:Math.round(Number(f.get("price")||0)*100),salePrice:Math.round(Number(f.get("salePrice")||0)*100),description:f.get("description"),sizes:f.get("sizes"),colors:f.get("colors"),imageUrl:f.get("imageUrl"),active:f.get("active")==="on",featured:f.get("featured")==="on",updatedAt:serverTimestamp()};if(editing?.id)await updateDoc(doc(db,"products",editing.id),data);else await addDoc(collection(db,"products"),{...data,createdAt:serverTimestamp()});setEditing(null);notify("Product saved")}}><h3 className="full">{editing?"Edit":"Add"} Product</h3><div className="field full"><label>Name</label><input name="name" defaultValue={editing?.name||""} required/></div><div className="field"><label>Category</label><input name="category" defaultValue={editing?.category||"T-Shirts"}/></div><div className="field"><label>Emoji</label><input name="emoji" defaultValue={editing?.emoji||"🎨"}/></div><div className="field"><label>Price</label><input name="price" type="number" step=".01" defaultValue={editing?.price?(editing.price/100).toFixed(2):""}/></div><div className="field"><label>Sale Price</label><input name="salePrice" type="number" step=".01" defaultValue={editing?.salePrice?(editing.salePrice/100).toFixed(2):""}/></div><div className="field full"><label>Description</label><textarea name="description" defaultValue={editing?.description||""}/></div><div className="field"><label>Sizes</label><input name="sizes" defaultValue={editing?.sizes||""}/></div><div className="field"><label>Colors</label><input name="colors" defaultValue={editing?.colors||""}/></div><div className="field full"><label>Image URL</label><input name="imageUrl" defaultValue={editing?.imageUrl||""}/></div><label><input style={{width:"auto"}} type="checkbox" name="active" defaultChecked={editing?editing.active!==false:true}/> Show in shop</label><label><input style={{width:"auto"}} type="checkbox" name="featured" defaultChecked={editing?.featured||false}/> Featured</label><div className="full"><button className="btn primary">Save Product</button></div></form><div className="card"><h3>Catalog</h3>{products.map(p=><div className="item" key={p.id}><div className="row space"><div><b>{p.name}</b><div className="muted">{p.category} • {money(p.price)}</div></div><div className="row"><button className="btn secondary" onClick={()=>setEditing(p)}>Edit</button><button className="btn danger" onClick={()=>deleteDoc(doc(db,"products",p.id))}>Delete</button></div></div></div>)}</div></div>}{adminTab==="orders"&&<div className="card">{adminOrders.map(o=><div className="item" key={o.id}>{o.orderNumber||o.id} — {o.status||"Received"}</div>)}</div>}{adminTab==="requests"&&<div className="card">{requests.map(r=><div className="item" key={r.id}><b>{r.type}</b><div>{r.email}</div><div>{r.details}</div></div>)}</div>}{adminTab==="customers"&&<div className="card"><table className="admin-table"><tbody>{users.map(u=><tr key={u.id}><td>{u.name}</td><td>{u.email}</td><td>{u.loyaltyPunches||0} punches</td></tr>)}</tbody></table></div>}</section>;
 
  const pages={home:<Home/>,shop:<ShopPage live={live} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sort={sort} setSort={setSort} shopItems={shopItems} add={add}/>,account:<Account/>,rewards:<Rewards/>,orders:<Orders/>,custom:<Custom/>,cart:<Cart/>,admin:<Admin/>};
