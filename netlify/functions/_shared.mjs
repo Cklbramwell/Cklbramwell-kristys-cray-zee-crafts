@@ -266,3 +266,53 @@ export function verifyStripeSignature(rawBody, signatureHeader, secret, toleranc
 
   if (!valid) throw new Error("Stripe webhook signature is invalid.");
 }
+
+export async function firestorePatch(projectId, path, data) {
+  const token = await getGoogleAccessToken();
+  const url = `${firestoreBase(projectId)}/${path}`;
+  const response = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields: toFirestoreFields(data) }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    console.error("Firestore PATCH error:", result);
+    throw new Error("Unable to update Firestore.");
+  }
+  return { ...fromFirestoreFields(result.fields || {}) };
+}
+
+export async function sendEmail({to,subject,html,text}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.ORDER_FROM_EMAIL;
+  if (!apiKey || !from || !to) {
+    console.log("Email skipped: RESEND_API_KEY, ORDER_FROM_EMAIL, or recipient is missing.");
+    return { skipped: true };
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      text,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    console.error("Resend email error:", data);
+    return { error: data };
+  }
+  return data;
+}
