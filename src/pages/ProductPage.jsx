@@ -1,6 +1,6 @@
 import ProductCard from "../components/ProductCard";
 import ProductGallery from "../components/products/ProductGallery";
-import { PRODUCT_REVIEWS, detectProductFamily, relatedProducts } from "../config/catalog";
+import { PRODUCT_REVIEWS, explicitBuilderFamily, relatedProducts } from "../config/catalog";
 import { money, productPrice } from "../utils";
 
 export default function ProductPage({ product, products, onCustomize, onOpenProduct, onBack }) {
@@ -8,7 +8,7 @@ export default function ProductPage({ product, products, onCustomize, onOpenProd
     return <section className="wrap"><div className="card">Product not found.</div></section>;
   }
 
-  const family=detectProductFamily(product);
+  const family=explicitBuilderFamily(product);
   const related=relatedProducts(products,product,3);
 
   return (
@@ -21,6 +21,7 @@ export default function ProductPage({ product, products, onCustomize, onOpenProd
 
           <div className="product-detail-copy">
             <span className="tag">{product.category}</span>
+            <span className="tag builder-type-tag">Builder: {family}</span>
             <h1>{product.name}</h1>
             <div className="product-detail-price">
               Starting at <span className="price">{money(productPrice(product))}</span>

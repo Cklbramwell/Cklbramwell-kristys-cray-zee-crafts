@@ -1,55 +1,36 @@
-# Kristy's Cray-Zee Crafts
+# V7.2.2 — Explicit Tumbler / Laser Builder Fix
 
-## V7.2.1 — Tumbler + Engraving Dropdown Fix
+This release removes dependence on category-name guessing.
 
-### Fixed
-- Stronger automatic product-family detection
-- Tumbler products now reliably open the Drinkware Builder
-- Engraving / laser products now reliably open the Laser Builder
+## New
+- Explicit `builderFamily` field for products in Admin
+- Product Builder dropdown in Admin:
+  - Auto Detect
+  - Apparel
+  - Drinkware / Tumblers
+  - Laser Engraving
+  - Promotional Products
+- Tumbler products force the Drinkware Builder
+- Laser / engraving products force the Laser Builder
+- Shop category filters use explicit builder family
+- Product page shows a temporary `Builder: drinkware` / `Builder: laser` badge so you can verify the correct builder before customizing
 
-### Drinkware Dropdowns
-- Drinkware Type
-  - 20 oz Tumbler
-  - 30 oz Tumbler
-  - Coffee Mug
-  - Other Drinkware
-- Wrap / Design Style
-  - Name / Text Only
-  - Logo / Graphic
-  - Front & Back Design
-  - Full Wrap
-  - Other
-- Color / Theme
-- Design Type
-- Artwork choice
-- Personalization
-- Delivery
-- Rush
-- Needed-by date
+## What to do after deploy
+Go to Admin → Products.
 
-### Engraving Dropdowns
-- Engraving Item
-- Material
-- Engraving Sides
-- Dimensions
-- Layout / Style
-- Finish / Color
-- Design Type
-- Artwork choice
-- Engraving text
-- Delivery
-- Design fee
-- Rush
-- Needed-by date
+For your tumbler product:
+- Edit
+- Product Builder → Drinkware / Tumblers
+- Save Product
 
-### Pricing
-- 20 oz tumbler $30
-- 30 oz tumbler $40
-- Name personalization +$5/item
-- Full wrap +$2/item
-- Cutting Board $40
-- Keychain $10
-- Acrylic Sign $20
-- Two-sided engraving +$5/item
-- Design fee +$25/order
-- Rush +$20/order
+For your engraving product:
+- Edit
+- Product Builder → Laser Engraving
+- Save Product
+
+Then open each product from Shop and confirm the product page badge says:
+- Builder: drinkware
+or
+- Builder: laser
+
+Click Customize This Product. The dedicated dropdowns will appear.

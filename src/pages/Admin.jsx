@@ -539,6 +539,7 @@ function ProductManager({ products, editing, setEditing, notify }) {
           const data = {
             name: form.get("name"),
             category: form.get("category"),
+            builderFamily: form.get("builderFamily"),
             emoji: form.get("emoji") || "🎨",
             price: Math.round(Number(form.get("price") || 0) * 100),
             salePrice: Math.round(Number(form.get("salePrice") || 0) * 100),
@@ -573,6 +574,16 @@ function ProductManager({ products, editing, setEditing, notify }) {
         <label className="field">
           <span>Category</span>
           <input name="category" defaultValue={editing?.category || "T-Shirts"} />
+        </label>
+        <label className="field">
+          <span>Product Builder</span>
+          <select name="builderFamily" defaultValue={editing?.builderFamily || ""}>
+            <option value="">Auto Detect</option>
+            <option value="apparel">Apparel</option>
+            <option value="drinkware">Drinkware / Tumblers</option>
+            <option value="laser">Laser Engraving</option>
+            <option value="marketing">Promotional Products</option>
+          </select>
         </label>
         <label className="field">
           <span>Emoji</span>

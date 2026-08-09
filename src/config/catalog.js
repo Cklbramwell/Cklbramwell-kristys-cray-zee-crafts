@@ -138,3 +138,39 @@ export function relatedProducts(products, currentProduct, limit = 3) {
     .filter((product) => detectProductFamily(product) === family)
     .slice(0, limit);
 }
+
+
+export function explicitBuilderFamily(product) {
+  const explicit = String(product?.builderFamily || "").trim().toLowerCase();
+  if (["apparel","drinkware","laser","marketing"].includes(explicit)) {
+    return explicit;
+  }
+
+  const id = String(product?.id || "").toLowerCase();
+  const name = String(product?.name || "").toLowerCase();
+  const category = String(product?.category || "").toLowerCase();
+
+  // Explicit known product patterns.
+  if (
+    id.includes("tumbler") ||
+    name.includes("tumbler") ||
+    name.includes("20 oz") ||
+    name.includes("30 oz") ||
+    category.includes("tumbler") ||
+    category.includes("drinkware")
+  ) return "drinkware";
+
+  if (
+    id.includes("laser") ||
+    id.includes("engraving") ||
+    name.includes("engraving") ||
+    name.includes("engraved") ||
+    name.includes("cutting board") ||
+    name.includes("keychain") ||
+    name.includes("acrylic") ||
+    category.includes("laser") ||
+    category.includes("engraving")
+  ) return "laser";
+
+  return detectProductFamily(product);
+}

@@ -1,8 +1,16 @@
 import ProductCard from "../components/ProductCard";
 import { CATEGORIES } from "../config/storefront";
+import { explicitBuilderFamily } from "../config/catalog";
 
 function matchesCategory(product, categoryId) {
   if (!categoryId || categoryId === "all") return true;
+
+  const family = explicitBuilderFamily(product);
+  if (categoryId === "apparel" && family === "apparel") return true;
+  if (categoryId === "drinkware" && family === "drinkware") return true;
+  if (categoryId === "laser" && family === "laser") return true;
+  if (categoryId === "marketing" && family === "marketing") return true;
+
   const category = CATEGORIES.find((item) => item.id === categoryId);
   if (!category) return true;
 

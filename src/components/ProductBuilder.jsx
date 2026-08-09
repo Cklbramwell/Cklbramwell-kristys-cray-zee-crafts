@@ -1,4 +1,4 @@
-import { detectProductFamily } from "../config/catalog";
+import { explicitBuilderFamily } from "../config/catalog";
 import ApparelBuilder from "./builders/ApparelBuilder";
 import DrinkwareBuilder from "./builders/DrinkwareBuilder";
 import LaserBuilder from "./builders/LaserBuilder";
@@ -16,7 +16,7 @@ export default function ProductBuilder({ product, onAdd, onBack, preset = null }
     );
   }
 
-  const family = detectProductFamily(product);
+  const family = explicitBuilderFamily(product);
 
   return (
     <section className="wrap product-builder-page">
