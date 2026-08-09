@@ -1,34 +1,46 @@
 import { money } from "../utils";
 import { ConfigurationSummary } from "./CartView";
+import {
+  PRODUCTION_STATUSES,
+  normalizeOrderStatus,
+  statusProgress,
+} from "../config/production";
 
-export default function OrderDetails({ order, admin = false, onUpdate }) {
+export default function OrderDetails({ order }) {
+  const currentStatus = normalizeOrderStatus(order.status);
+
   return (
-    <article className="card order-card">
+    <article className="card order-card customer-order-card">
       <div className="row space">
         <div>
           <h3>{order.orderNumber || order.id}</h3>
-          <div className="muted">{order.customerName || "Customer"}</div>
-          <div className="muted">{order.customerEmail || ""}</div>
-          {order.customerPhone && <div className="muted">{order.customerPhone}</div>}
+          <div className="muted">
+            {order.customerName || "Customer"} • {order.customerEmail || ""}
+          </div>
         </div>
-
-        {admin && onUpdate ? (
-          <select
-            value={order.status || "Paid"}
-            onChange={(event) => onUpdate(order, { status: event.target.value })}
-          >
-            <option>Paid</option>
-            <option>Designing</option>
-            <option>Waiting for Approval</option>
-            <option>Ready for Pickup</option>
-            <option>Shipped</option>
-            <option>Completed</option>
-            <option>Cancelled</option>
-          </select>
-        ) : (
-          <span className="status">{order.status || "Paid"}</span>
-        )}
+        <span className="status">{currentStatus}</span>
       </div>
+
+      <ProductionTimeline status={currentStatus} />
+
+      {order.proofStatus && order.proofStatus !== "Not Started" && (
+        <div className="customer-proof-box">
+          <div>
+            <b>Artwork Proof</b>
+            <span>{order.proofStatus}</span>
+          </div>
+          {order.proofUrl && (
+            <a
+              className="btn secondary"
+              href={order.proofUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View Proof
+            </a>
+          )}
+        </div>
+      )}
 
       <section className="order-section">
         <h4>Items Purchased</h4>
@@ -39,9 +51,7 @@ export default function OrderDetails({ order, admin = false, onUpdate }) {
                 <div>
                   <b>{item.name || "Product"}</b>
                   <div className="muted">Quantity: {item.quantity || 0}</div>
-                  {item.productId && <div className="muted">Product ID: {item.productId}</div>}
                 </div>
-
                 <div className="order-price">
                   {item.unitAmount != null && <div>{money(item.unitAmount)} each</div>}
                   <div className="price">{money(item.amountTotal || 0)}</div>
@@ -58,51 +68,52 @@ export default function OrderDetails({ order, admin = false, onUpdate }) {
 
       <div className="grid g2 order-grid">
         <div className="card">
-          <h4>Shipping Address</h4>
+          <h4>Delivery</h4>
+
           {order.shippingAddress ? (
             <address>
               {order.shippingAddress.line1 || ""}
-              {order.shippingAddress.line2 && <><br />{order.shippingAddress.line2}</>}
+              {order.shippingAddress.line2 && (
+                <>
+                  <br />
+                  {order.shippingAddress.line2}
+                </>
+              )}
               <br />
               {order.shippingAddress.city || ""}
               {order.shippingAddress.city && order.shippingAddress.state ? ", " : ""}
-              {order.shippingAddress.state || ""} {order.shippingAddress.postalCode || ""}
+              {order.shippingAddress.state || ""}{" "}
+              {order.shippingAddress.postalCode || ""}
               <br />
               {order.shippingAddress.country || ""}
             </address>
           ) : (
-            <p className="muted">No shipping address saved.</p>
+            <p className="muted">Pickup / shipping details will appear here.</p>
           )}
 
-          {admin && onUpdate && (
-            <TrackingEditor order={order} onUpdate={onUpdate} />
-          )}
-
-          {!admin && (
-            <div className="tracking-summary">
-              <h4>Tracking</h4>
-              {order.trackingNumber ? (
-                <>
-                  <p>
-                    <b>{order.carrier || "Carrier"}:</b> {order.trackingNumber}
-                  </p>
-                  {order.trackingUrl && (
-                    <a href={order.trackingUrl} target="_blank" rel="noreferrer">
-                      Track package
-                    </a>
-                  )}
-                </>
-              ) : (
-                <p className="muted">
-                  Tracking will appear here once your order ships.
+          <div className="tracking-summary">
+            <h4>Tracking</h4>
+            {order.trackingNumber ? (
+              <>
+                <p>
+                  <b>{order.carrier || "Carrier"}:</b> {order.trackingNumber}
                 </p>
-              )}
-            </div>
-          )}
+                {order.trackingUrl && (
+                  <a href={order.trackingUrl} target="_blank" rel="noreferrer">
+                    Track package
+                  </a>
+                )}
+              </>
+            ) : (
+              <p className="muted">
+                Tracking will appear here once your order ships.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="card">
-          <h4>Payment</h4>
+          <h4>Payment & Schedule</h4>
           <div className="row space">
             <span>Subtotal</span>
             <b>{money(order.subtotal || 0)}</b>
@@ -111,14 +122,13 @@ export default function OrderDetails({ order, admin = false, onUpdate }) {
             <span>Total</span>
             <span className="price">{money(order.total || 0)}</span>
           </div>
-          <p><b>Payment Status:</b> {order.paymentStatus || "—"}</p>
-          {admin && (
-            <details>
-              <summary>Stripe / Technical Details</summary>
-              <p className="technical"><b>Payment Intent:</b><br />{order.paymentIntentId || "—"}</p>
-              <p className="technical"><b>Stripe Session:</b><br />{order.stripeSessionId || "—"}</p>
-              <p className="technical"><b>Firebase User ID:</b><br />{order.userId || "—"}</p>
-            </details>
+          <p>
+            <b>Payment Status:</b> {order.paymentStatus || "—"}
+          </p>
+          {order.dueDate && (
+            <p>
+              <b>Production Due Date:</b> {order.dueDate}
+            </p>
           )}
         </div>
       </div>
@@ -126,46 +136,57 @@ export default function OrderDetails({ order, admin = false, onUpdate }) {
   );
 }
 
-function TrackingEditor({ order, onUpdate }) {
-  const save = () => {
-    const carrier = document.getElementById(`carrier-${order.id}`)?.value || "";
-    const trackingNumber =
-      document.getElementById(`tracking-${order.id}`)?.value || "";
-    const trackingUrl =
-      document.getElementById(`tracking-url-${order.id}`)?.value || "";
+function ProductionTimeline({ status }) {
+  const steps = PRODUCTION_STATUSES.filter(
+    (value) =>
+      !["Cancelled", "Shipped"].includes(value) &&
+      value !== "Ready for Pickup"
+  );
 
-    onUpdate(order, {
-      carrier,
-      trackingNumber,
-      trackingUrl,
-      status: trackingNumber ? "Shipped" : order.status || "Paid",
-    });
-  };
+  const displaySteps = [
+    "New Order",
+    "Designing",
+    "Proof Sent",
+    "Proof Approved",
+    "Printing",
+    "Quality Check",
+    status === "Shipped" ? "Shipped" : "Ready for Pickup",
+    "Completed",
+  ];
+
+  const currentIndex =
+    status === "Cancelled"
+      ? -1
+      : displaySteps.indexOf(status) >= 0
+        ? displaySteps.indexOf(status)
+        : statusProgress(status);
 
   return (
-    <div className="tracking-editor">
-      <h4>Tracking</h4>
-      <label className="field">
-        <span>Carrier</span>
-        <input id={`carrier-${order.id}`} defaultValue={order.carrier || ""} />
-      </label>
-      <label className="field">
-        <span>Tracking Number</span>
-        <input
-          id={`tracking-${order.id}`}
-          defaultValue={order.trackingNumber || ""}
-        />
-      </label>
-      <label className="field">
-        <span>Tracking URL</span>
-        <input
-          id={`tracking-url-${order.id}`}
-          defaultValue={order.trackingUrl || ""}
-        />
-      </label>
-      <button className="btn primary" onClick={save}>
-        Save Tracking
-      </button>
+    <div className="customer-production">
+      <div className="production-progress-track">
+        {displaySteps.map((step, index) => {
+          const complete = currentIndex >= index;
+          const active = currentIndex === index;
+
+          return (
+            <div
+              className={`production-progress-step ${complete ? "complete" : ""} ${
+                active ? "active" : ""
+              }`}
+              key={step}
+            >
+              <span>{complete ? "✓" : index + 1}</span>
+              <small>{step}</small>
+            </div>
+          );
+        })}
+      </div>
+
+      {status === "Cancelled" && (
+        <div className="notice production-cancelled">
+          This order is marked Cancelled. Contact us if you have questions.
+        </div>
+      )}
     </div>
   );
 }

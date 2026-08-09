@@ -1,65 +1,59 @@
 # Kristy's Cray-Zee Crafts
 
-## V7.1.0 — Professional Product Catalog + Dedicated Builders
+## V7.2.0 — Admin Dashboard + Production Workflow
 
-### New
-- Product detail pages
-- Product image galleries with up to three image URLs
-- Related products
-- Product reviews section
-- Dedicated Apparel Builder
-- Dedicated Drinkware Builder
-- Dedicated Laser Builder
-- Promotional Products request builder
-- Product-purpose templates
-- Structured option data carried into cart / Stripe / Firestore
-- More detailed cart configuration summary
+### New Admin Workflow
+- Production board with workflow columns
+- Order search
+- Status filtering
+- Rush / normal filtering
+- Rush order indicators
+- Due-date visibility
+- Designer assignment
+- Printer / production assignment
+- Production due date
+- Proof status
+- Proof URL
+- Production notes
+- Private internal notes
+- Shipping / tracking controls
+- Status history
+- Newest-order dashboard
+- Attention-needed dashboard counters
 
-### Apparel Pricing Included
-T-Shirts:
-- S–XL $20 front only
-- 2XL $25 front only
-- 3XL $25 front only
-- 4XL $27 front only
-- 5XL $30 front only
-- Back print +$10/item
-- Sleeve print +$10/item
-- Personalized name/number +$5/item
-- Rush +$20/order
+### Production Stages
+1. New Order
+2. Designing
+3. Proof Sent
+4. Proof Approved
+5. Printing
+6. Quality Check
+7. Ready for Pickup
+8. Shipped
+9. Completed
+10. Cancelled
 
-Hoodies:
-- S–XL $35 front only
-- 2XL–5XL $50 front only
-- Back print +$10/item
-- Sleeve print +$10/item
-- Personalized name/number +$5/item
-- Rush +$20/order
+### Customer Portal Upgrade
+Customers now see:
+- Production progress timeline
+- Current status
+- Proof status
+- Proof link when provided
+- Production due date
+- Tracking details
+- Full configured products and payment totals
 
-Long Sleeve:
-- S–XL $25 front only
-- 2XL $30
-- 3XL $30
-- 4XL $32
-- 5XL $35
-- Back print +$10/item
-- Sleeve print +$10/item
-- Personalized name/number +$5/item
-- Rush +$20/order
+### New Stripe Orders
+New paid Stripe orders are now created as:
+- Payment Status: paid
+- Production Status: New Order
+- Rush priority automatically detected
+- Due date copied from the customer's Needed By selection
+- Initial status history entry created
 
-### Drinkware Pricing Included
-- 20 oz tumbler $30
-- 30 oz tumbler $40
-- Name personalization +$5/item
-- Full wrap +$2/item
-- Rush +$20/order
-
-### Laser Pricing Included
-- Cutting Board $40
-- Keychain $10
-- Acrylic Sign $20
-- Extra engraving side +$5/item
-- Rush +$20/order
-- Custom design fee +$25/order
-
-### Important
-Promotional product pricing is not invented. Those items are marked for price review until actual pricing is supplied.
+### Email Updates
+When configured with Resend, customer emails can now be triggered by:
+- Production status changes
+- Proof status / proof link changes
+- Due-date changes
+- Tracking changes

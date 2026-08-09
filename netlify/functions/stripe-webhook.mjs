@@ -150,7 +150,22 @@ export default async (request) => {
       total: Number(session.amount_total || 0),
       currency: session.currency || "usd",
       paymentStatus: session.payment_status || "paid",
-      status: "Paid",
+      status: "New Order",
+      priority: items.some((item) => item.rushOrder === "Yes") ? "Rush" : "Normal",
+      designer: "",
+      printer: "",
+      dueDate: items.map((item) => item.neededBy).find(Boolean) || "",
+      proofStatus: "Not Started",
+      proofUrl: "",
+      internalNotes: "",
+      productionNotes: "",
+      statusHistory: [
+        {
+          status: "New Order",
+          at: now,
+          updatedBy: "Stripe Checkout",
+        },
+      ],
       createdAt: now,
       updatedAt: now,
     };

@@ -1,33 +1,34 @@
-# Kristy's Cray-Zee Crafts V7.1
+# Kristy's Cray-Zee Crafts V7.2
 
-React + Firebase + Netlify + Stripe.
+## Admin + Production Workflow
 
-## V7.1 Highlights
-- Professional product detail pages
-- Dedicated builders by product family
-- Product templates / ordering purposes
-- Structured customization data
-- Live pricing for apparel, drinkware and laser
-- Server-side price enforcement before Stripe
-- Related products and product review presentation
+The Admin dashboard is now designed to manage a custom order through production.
 
-## Builder structure
-- `src/components/builders/ApparelBuilder.jsx`
-- `src/components/builders/DrinkwareBuilder.jsx`
-- `src/components/builders/LaserBuilder.jsx`
-- `src/components/builders/MarketingBuilder.jsx`
-- `src/components/ProductBuilder.jsx` routes products to the correct builder.
+### Main files
+- `src/pages/Admin.jsx`
+- `src/components/ProductionBoard.jsx`
+- `src/components/ProductionOrderCard.jsx`
+- `src/components/OrderDetails.jsx`
+- `src/config/production.js`
+- `netlify/functions/update-order.mjs`
+- `netlify/functions/stripe-webhook.mjs`
 
-## Pricing
-- `src/config/pricing.js`
-- `netlify/functions/create-checkout.mjs`
+### Workflow
+New Order → Designing → Proof Sent → Proof Approved → Printing → Quality Check →
+Ready for Pickup / Shipped → Completed
 
-The browser and server each calculate the allowed price independently.
+### Team fields
+- Designer
+- Printer / production
+- Priority
+- Due date
+- Proof status
+- Proof URL
+- Production notes
+- Internal notes
 
-## Product images
-Admin currently supports one `imageUrl`.
-Product pages also recognize optional Firestore fields:
-- `imageUrl2`
-- `imageUrl3`
+Internal notes are shown only in Admin.
 
-These can be added later to Admin without affecting checkout.
+### Existing orders
+Older orders with status `Paid` are displayed as `New Order` in the new dashboard.
+Their status history begins when you make the next production update.
