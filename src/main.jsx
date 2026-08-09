@@ -120,6 +120,27 @@ function App(){
      setCheckoutLoading(false);
    }
  };
+ const updateAdminOrder=async(order,changes)=>{
+   if(!user)return notify("Admin sign-in required.");
+   try{
+     const idToken=await user.getIdToken();
+     const response=await fetch("/.netlify/functions/update-order",{
+       method:"POST",
+       headers:{
+         "Content-Type":"application/json",
+         "Authorization":`Bearer ${idToken}`
+       },
+       body:JSON.stringify({orderId:order.id,changes})
+     });
+     const text=await response.text();
+     let data={};
+     try{data=JSON.parse(text)}catch{}
+     if(!response.ok)throw new Error(data.error||text||"Unable to update order.");
+     notify("Order updated");
+   }catch(error){
+     notify(error.message||"Unable to update order.");
+   }
+ };
  const subtotal=useMemo(()=>cart.reduce((s,i)=>{const p=all.find(x=>x.id===i.id);return s+(p?price(p)*i.qty:0)},0),[cart,all]);
  const shopItems=useMemo(()=>{
    let x=[...live];
@@ -134,7 +155,77 @@ function App(){
  const Home=()=> <><section className="wrap hero"><div><div className="eyebrow">Custom creations made for you</div><h1>Turn your ideas into something <span className="gradient">Cray-Zee creative.</span></h1><p className="lead">Shop personalized shirts, tumblers and graphics, manage custom requests, and earn loyalty rewards.</p><div className="row"><button className="btn primary" onClick={()=>nav("shop")}>Shop Now</button><button className="btn secondary" onClick={()=>nav("custom")}>Custom Order</button></div></div><img src="/assets/kristys-logo.png"/></section><section className="wrap"><h2>Featured</h2><div className="grid g3">{live.filter(p=>p.featured).slice(0,3).map(p=><ProductCard p={p} add={add} key={p.id}/>)}</div></section></>;
  const Account=()=> !user?<section className="wrap"><div className="grid g2"><form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await signInWithEmailAndPassword(auth,f.get("email"),f.get("password"));notify("Signed in")}catch(x){notify(x.message)}}}><h2 className="full">Sign In</h2><div className="field full"><label>Email</label><input name="email" type="email" required/></div><div className="field full"><label>Password</label><input name="password" type="password" required/></div><div className="full row"><button className="btn primary">Sign In</button><button type="button" className="btn secondary" onClick={async()=>{const e=prompt("Email");if(e)await sendPasswordResetEmail(auth,e)}}>Forgot Password</button></div></form><form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{const c=await createUserWithEmailAndPassword(auth,f.get("email"),f.get("password"));await setDoc(doc(db,"users",c.user.uid),{name:f.get("name"),email:f.get("email"),phone:f.get("phone"),role:"customer",loyaltyPunches:0,availableRewards:0,createdAt:serverTimestamp()});notify("Account created")}catch(x){notify(x.message)}}}><h2 className="full">Create Account</h2><div className="field full"><label>Name</label><input name="name" required/></div><div className="field"><label>Email</label><input name="email" type="email" required/></div><div className="field"><label>Phone</label><input name="phone"/></div><div className="field full"><label>Password</label><input name="password" type="password" minLength="6" required/></div><div className="full"><button className="btn primary">Create Account</button></div></form></div></section>:<section className="wrap"><div className="row space"><h2>{profile?.name||user.email}</h2><button className="btn secondary" onClick={()=>signOut(auth)}>Sign Out</button></div><div className="metric-grid"><div className="metric">Orders<strong>{orders.length}</strong></div><div className="metric">Punches<strong>{profile?.loyaltyPunches||0}</strong></div><div className="metric">Rewards<strong>{profile?.availableRewards||0}</strong></div><div className="metric">Role<strong style={{fontSize:18}}>{profile?.role||"customer"}</strong></div></div></section>;
  const Rewards=()=> <section className="wrap"><h2>Cray-Zee Loyalty Card</h2><div className="card">{!user?<p>Sign in to view your rewards.</p>:<><div className="punches">{Array.from({length:10},(_,i)=><div className={`punch ${i<(profile?.loyaltyPunches||0)?"on":""}`} key={i}>{i<(profile?.loyaltyPunches||0)?"★":i+1}</div>)}</div><div className="notice">{profile?.availableRewards||0} rewards available</div></>}</div></section>;
- const Orders=()=> <section className="wrap"><h2>My Orders</h2><div className="card">{orders.length?orders.map(o=><div className="item" key={o.id}><div className="row space"><b>{o.orderNumber||o.id}</b><span className="status">{o.status||"Received"}</span></div><div className="price">{money(o.total||0)}</div></div>):<p className="muted">No orders yet.</p>}</div></section>;
+ const Orders=()=> <section className="wrap">
+   <div className="eyebrow">My account</div>
+   <h2>Order History</h2>
+   {!user ? (
+     <div className="card"><p>Please sign in to view your orders.</p></div>
+   ) : (
+     <div>
+       {orders.length ? orders.map(o =>
+         <div className="card" key={o.id} style={{marginBottom:18}}>
+           <div className="row space">
+             <div>
+               <h3 style={{marginBottom:4}}>{o.orderNumber || o.id}</h3>
+               <div className="muted">{o.customerEmail || user.email}</div>
+             </div>
+             <span className="status">{o.status || "Paid"}</span>
+           </div>
+
+           <div style={{marginTop:15}}>
+             {(o.items || []).length ? (o.items || []).map((item,index)=>
+               <div className="item row space" key={`${o.id}-customer-item-${index}`}>
+                 <div>
+                   <b>{item.name || "Product"}</b>
+                   <div className="muted">Quantity: {item.quantity || 0}</div>
+                 </div>
+                 <div style={{textAlign:"right"}}>
+                   {item.unitAmount != null && <div>{money(item.unitAmount)} each</div>}
+                   <b>{money(item.amountTotal || 0)}</b>
+                 </div>
+               </div>
+             ) : <p className="muted">Item details are not available for this order.</p>}
+           </div>
+
+           <div className="grid g2" style={{marginTop:15}}>
+             <div>
+               <h4>Order Total</h4>
+               <div className="price">{money(o.total || 0)}</div>
+               <p className="muted">Payment: {o.paymentStatus || "—"}</p>
+             </div>
+             <div>
+               <h4>Shipping / Tracking</h4>
+               {o.trackingNumber ? (
+                 <>
+                   <p><b>{o.carrier || "Carrier"}:</b> {o.trackingNumber}</p>
+                   {o.trackingUrl &&
+                     <p><a href={o.trackingUrl} target="_blank" rel="noreferrer">Track package</a></p>
+                   }
+                 </>
+               ) : <p className="muted">Tracking will appear here once your order ships.</p>}
+             </div>
+           </div>
+
+           {o.shippingAddress &&
+             <details style={{marginTop:10}}>
+               <summary style={{cursor:"pointer",fontWeight:700}}>Shipping address</summary>
+               <p style={{lineHeight:1.6}}>
+                 {o.shippingAddress.line1 || ""}
+                 {o.shippingAddress.line2 && <><br/>{o.shippingAddress.line2}</>}
+                 <br/>
+                 {o.shippingAddress.city || ""}
+                 {o.shippingAddress.city && o.shippingAddress.state ? ", " : ""}
+                 {o.shippingAddress.state || ""} {o.shippingAddress.postalCode || ""}
+                 <br/>
+                 {o.shippingAddress.country || ""}
+               </p>
+             </details>
+           }
+         </div>
+       ) : <div className="card"><p className="muted">No orders yet.</p></div>}
+     </div>
+   )}
+ </section>;
  const Custom=()=> <section className="wrap"><h2>Custom Order</h2>{!user?<div className="card"><p>Sign in first.</p></div>:<form className="card form" onSubmit={async e=>{e.preventDefault();const f=new FormData(e.currentTarget);await addDoc(collection(db,"customRequests"),{userId:user.uid,email:user.email,type:f.get("type"),quantity:Number(f.get("quantity")||1),size:f.get("size"),colors:f.get("colors"),wording:f.get("wording"),details:f.get("details"),status:"Request Received",createdAt:serverTimestamp()});e.currentTarget.reset();notify("Custom request submitted")}}><div className="field"><label>Product</label><select name="type"><option>Custom Shirt</option><option>Custom Tumbler</option><option>Custom Graphic</option><option>Other</option></select></div><div className="field"><label>Quantity</label><input name="quantity" type="number" defaultValue="1"/></div><div className="field"><label>Size</label><input name="size"/></div><div className="field"><label>Colors</label><input name="colors"/></div><div className="field full"><label>Wording</label><input name="wording"/></div><div className="field full"><label>Details</label><textarea name="details" required/></div><div className="full"><button className="btn primary">Submit</button></div></form>}</section>;
  const Cart=()=> <section className="wrap"><h2>Cart</h2><div className="card">{cart.length?cart.map((i,n)=>{const p=all.find(x=>x.id===i.id);return p?<div className="item row space" key={n}><div><b>{p.name}</b><div className="price">{money(price(p)*i.qty)}</div></div><div><button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:Math.max(1,x.qty-1)}:x))}>−</button> {i.qty} <button className="btn secondary" onClick={()=>setCart(c=>c.map((x,j)=>j===n?{...x,qty:x.qty+1}:x))}>+</button></div></div>:null}):<p className="muted">Cart is empty.</p>}<h3>Total: {money(subtotal)}</h3>{cart.length>0&&<><button className="btn primary" disabled={checkoutLoading} onClick={beginCheckout}>{checkoutLoading?"Opening secure checkout...":"Secure Checkout"}</button><p className="muted">Payments are processed securely by Stripe.</p></>}</div></section>;
  const Admin=()=> profile?.role!=="admin"
@@ -252,12 +343,7 @@ function App(){
 
               <select
                 value={o.status || "Paid"}
-                onChange={e =>
-                  updateDoc(doc(db,"orders",o.id),{
-                    status:e.target.value,
-                    updatedAt:serverTimestamp()
-                  })
-                }
+                onChange={e => updateAdminOrder(o,{status:e.target.value})}
               >
                 <option>Paid</option>
                 <option>Designing</option>
@@ -265,6 +351,7 @@ function App(){
                 <option>Ready for Pickup</option>
                 <option>Shipped</option>
                 <option>Completed</option>
+                <option>Cancelled</option>
               </select>
             </div>
 
@@ -301,6 +388,43 @@ function App(){
                     {o.shippingAddress.country || ""}
                   </p>
                 ) : <p className="muted">No shipping address saved.</p>}
+
+                <h4>Tracking</h4>
+                <div className="field">
+                  <label>Carrier</label>
+                  <input
+                    id={`carrier-${o.id}`}
+                    defaultValue={o.carrier || ""}
+                    placeholder="USPS, UPS, FedEx..."
+                  />
+                </div>
+                <div className="field">
+                  <label>Tracking Number</label>
+                  <input
+                    id={`tracking-${o.id}`}
+                    defaultValue={o.trackingNumber || ""}
+                    placeholder="Tracking number"
+                  />
+                </div>
+                <div className="field">
+                  <label>Tracking URL</label>
+                  <input
+                    id={`tracking-url-${o.id}`}
+                    defaultValue={o.trackingUrl || ""}
+                    placeholder="https://..."
+                  />
+                </div>
+                <button className="btn primary" style={{marginTop:10}} onClick={()=>{
+                  const carrier=document.getElementById(`carrier-${o.id}`)?.value||"";
+                  const trackingNumber=document.getElementById(`tracking-${o.id}`)?.value||"";
+                  const trackingUrl=document.getElementById(`tracking-url-${o.id}`)?.value||"";
+                  updateAdminOrder(o,{
+                    carrier,
+                    trackingNumber,
+                    trackingUrl,
+                    status:trackingNumber ? "Shipped" : (o.status || "Paid")
+                  });
+                }}>Save Tracking</button>
               </div>
 
               <div className="card">
