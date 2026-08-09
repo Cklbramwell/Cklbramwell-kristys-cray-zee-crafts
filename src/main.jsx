@@ -237,99 +237,101 @@ function App(){
       </div>
     }
 
-  {adminTab==="orders" &&
-<div className="card">
-  <h3>Orders</h3>
+    {adminTab==="orders" &&
+      <div className="card">
+        <h3>Orders</h3>
+        {adminOrders.length ? adminOrders.map(o =>
+          <div className="item" key={o.id} style={{marginBottom:28}}>
+            <div className="row space">
+              <div>
+                <h3 style={{marginBottom:4}}>{o.orderNumber || o.id}</h3>
+                <div className="muted">{o.customerName || "Customer"}</div>
+                <div className="muted">{o.customerEmail || ""}</div>
+                {o.customerPhone && <div className="muted">{o.customerPhone}</div>}
+              </div>
 
-  {adminOrders.length ? adminOrders.map(o => (
-    <div className="item" key={o.id} style={{marginBottom:30}}>
+              <select
+                value={o.status || "Paid"}
+                onChange={e =>
+                  updateDoc(doc(db,"orders",o.id),{
+                    status:e.target.value,
+                    updatedAt:serverTimestamp()
+                  })
+                }
+              >
+                <option>Paid</option>
+                <option>Designing</option>
+                <option>Waiting for Approval</option>
+                <option>Ready for Pickup</option>
+                <option>Shipped</option>
+                <option>Completed</option>
+              </select>
+            </div>
 
-      <div className="row space">
-        <div>
-          <h3>{o.orderNumber || o.id}</h3>
-          <div className="muted">
-            {o.customerName || "Customer"}
+            <div style={{marginTop:18}}>
+              <h4>Items Purchased</h4>
+              {(o.items || []).length ? (o.items || []).map((item,index) =>
+                <div className="item row space" key={`${o.id}-item-${index}`}>
+                  <div>
+                    <b>{item.name || "Product"}</b>
+                    <div className="muted">Quantity: {item.quantity || 0}</div>
+                  </div>
+                  <div style={{textAlign:"right"}}>
+                    {item.unitAmount != null && <div>{money(item.unitAmount)} each</div>}
+                    <div className="price" style={{fontSize:18}}>
+                      {money(item.amountTotal || 0)}
+                    </div>
+                  </div>
+                </div>
+              ) : <p className="muted">No item details were saved for this order.</p>}
+            </div>
+
+            <div className="grid g2" style={{marginTop:18}}>
+              <div className="card">
+                <h4>Shipping Address</h4>
+                {o.shippingAddress ? (
+                  <p style={{lineHeight:1.6}}>
+                    {o.shippingAddress.line1 || ""}
+                    {o.shippingAddress.line2 && <><br/>{o.shippingAddress.line2}</>}
+                    <br/>
+                    {o.shippingAddress.city || ""}
+                    {o.shippingAddress.city && o.shippingAddress.state ? ", " : ""}
+                    {o.shippingAddress.state || ""} {o.shippingAddress.postalCode || ""}
+                    <br/>
+                    {o.shippingAddress.country || ""}
+                  </p>
+                ) : <p className="muted">No shipping address saved.</p>}
+              </div>
+
+              <div className="card">
+                <h4>Payment</h4>
+                <div className="row space">
+                  <span>Subtotal</span>
+                  <b>{money(o.subtotal || 0)}</b>
+                </div>
+                <div className="row space" style={{marginTop:8}}>
+                  <span>Total</span>
+                  <span className="price">{money(o.total || 0)}</span>
+                </div>
+                <p><b>Payment Status:</b> {o.paymentStatus || "—"}</p>
+                <p className="muted" style={{overflowWrap:"anywhere"}}>
+                  <b>Payment Intent:</b><br/>{o.paymentIntentId || "—"}
+                </p>
+              </div>
+            </div>
+
+            <details style={{marginTop:16}}>
+              <summary style={{cursor:"pointer",fontWeight:700}}>Stripe / Technical Details</summary>
+              <p className="muted" style={{overflowWrap:"anywhere"}}>
+                <b>Stripe Session:</b><br/>{o.stripeSessionId || "—"}
+              </p>
+              <p className="muted" style={{overflowWrap:"anywhere"}}>
+                <b>Firebase User ID:</b><br/>{o.userId || "—"}
+              </p>
+            </details>
           </div>
-          <div className="muted">
-            {o.customerEmail}
-          </div>
-        </div>
-
-        <select
-          value={o.status || "Paid"}
-          onChange={e =>
-            updateDoc(doc(db,"orders",o.id),{
-              status:e.target.value,
-              updatedAt:serverTimestamp()
-            })
-          }
-        >
-          <option>Paid</option>
-          <option>Designing</option>
-          <option>Waiting for Approval</option>
-          <option>Ready for Pickup</option>
-          <option>Shipped</option>
-          <option>Completed</option>
-        </select>
+        ) : <p className="muted">No orders have been saved yet.</p>}
       </div>
-
-      <hr/>
-
-      <h4>Items</h4>
-
-      {(o.items || []).map((item,index)=>(
-        <div key={index} className="row space">
-          <span>{item.name}</span>
-          <span>
-            Qty: {item.qty} • {money(item.price)}
-          </span>
-        </div>
-      ))}
-
-      <hr/>
-
-      <h4>Shipping Address</h4>
-
-      <p>
-        {o.shippingAddress?.line1}<br/>
-        {o.shippingAddress?.line2}<br/>
-        {o.shippingAddress?.city}, {o.shippingAddress?.state} {o.shippingAddress?.postalCode}<br/>
-        {o.shippingAddress?.country}
-      </p>
-
-      <hr/>
-
-      <div className="row space">
-        <strong>Subtotal</strong>
-        <strong>{money(o.subtotal || 0)}</strong>
-      </div>
-
-      <div className="row space">
-        <strong>Total</strong>
-        <strong>{money(o.total || 0)}</strong>
-      </div>
-
-      <p>
-        <b>Payment Status:</b> {o.paymentStatus}
-      </p>
-
-      <p>
-        <b>Payment Intent:</b><br/>
-        {o.paymentIntentId}
-      </p>
-
-      <p>
-        <b>Stripe Session:</b><br/>
-        {o.stripeSessionId}
-      </p>
-
-    </div>
-  )) : (
-    <p>No orders yet.</p>
-  )}
-
-</div>
-}
     }
 
     {adminTab==="requests" &&
