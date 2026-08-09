@@ -38,6 +38,13 @@ export default async (request) => {
     const normalized = items.map((item) => ({
       id: String(item?.id || "").trim(),
       qty: Number(item?.qty),
+      lineKey: String(item?.lineKey || "").slice(0,120),
+      options: item?.options && typeof item.options === "object" ? {
+        size: String(item.options.size || "").slice(0,120),
+        color: String(item.options.color || "").slice(0,120),
+        personalization: String(item.options.personalization || "").slice(0,400),
+        designNotes: String(item.options.designNotes || "").slice(0,400),
+      } : null,
     }));
 
     for (const item of normalized) {
@@ -64,7 +71,7 @@ export default async (request) => {
         return Response.json({ error: `${p.name || "A product"} has an invalid price.` }, { status: 400 });
       }
 
-      products.push({ ...p, id: item.id, qty: item.qty, checkoutAmount: amount });
+      products.push({ ...p, id: item.id, qty: item.qty, lineKey:item.lineKey, options:item.options, checkoutAmount: amount });
     }
 
     const originHeader = request.headers.get("origin");
@@ -92,6 +99,11 @@ export default async (request) => {
       form.set(`line_items[${index}][price_data][unit_amount]`, String(p.checkoutAmount));
       form.set(`line_items[${index}][price_data][product_data][name]`, p.name || "Custom Product");
       form.set(`line_items[${index}][price_data][product_data][metadata][firestoreProductId]`, p.id);
+      if (p.lineKey) form.set(`line_items[${index}][price_data][product_data][metadata][lineKey]`, p.lineKey);
+      if (p.options?.size) form.set(`line_items[${index}][price_data][product_data][metadata][size]`, p.options.size);
+      if (p.options?.color) form.set(`line_items[${index}][price_data][product_data][metadata][color]`, p.options.color);
+      if (p.options?.personalization) form.set(`line_items[${index}][price_data][product_data][metadata][personalization]`, p.options.personalization);
+      if (p.options?.designNotes) form.set(`line_items[${index}][price_data][product_data][metadata][designNotes]`, p.options.designNotes);
     });
 
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
