@@ -1,16 +1,22 @@
-# Kristy's Cray-Zee Crafts V5
+# Kristy's Cray-Zee Crafts V6
 
-Correct React/Vite project structure.
+Modular React/Vite storefront.
 
-Required Netlify environment variables:
-- VITE_FIREBASE_API_KEY
-- VITE_FIREBASE_AUTH_DOMAIN
-- VITE_FIREBASE_PROJECT_ID
-- VITE_FIREBASE_STORAGE_BUCKET
-- VITE_FIREBASE_MESSAGING_SENDER_ID
-- VITE_FIREBASE_APP_ID
+## Structure
 
-Netlify:
-- Branch: main
-- Build command: npm run build
-- Publish directory: dist
+- `src/App.jsx` — app state, Firebase listeners, routing
+- `src/components/ProductBuilder.jsx` — guided product builder
+- `src/components/ProductCard.jsx` — product card
+- `src/components/CartView.jsx` — configured cart
+- `src/components/OrderDetails.jsx` — customer/admin order details
+- `src/pages/*` — storefront and dashboard pages
+- `src/config/pricing.js` — editable starter pricing
+- `netlify/functions/*` — Stripe/Firebase server functions
+
+## Netlify
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Functions directory: `netlify/functions`
+
+Keep your existing environment variables.
