@@ -237,24 +237,99 @@ function App(){
       </div>
     }
 
-    {adminTab==="orders" &&
-      <div className="card">
-        <h3>Orders</h3>
-        {adminOrders.length?adminOrders.map(o=>
-          <div className="item" key={o.id}>
-            <div className="row space">
-              <div><b>{o.orderNumber||o.id}</b><div className="muted">{o.customerEmail||""}</div></div>
-              <select value={o.status||"Paid"} onChange={e=>
-                updateDoc(doc(db,"orders",o.id),{status:e.target.value,updatedAt:serverTimestamp()})
-              }>
-                <option>Paid</option><option>Designing</option><option>Waiting for Approval</option>
-                <option>Ready for Pickup</option><option>Shipped</option><option>Completed</option>
-              </select>
-            </div>
-            <div className="price">{money(o.total||0)}</div>
+  {adminTab==="orders" &&
+<div className="card">
+  <h3>Orders</h3>
+
+  {adminOrders.length ? adminOrders.map(o => (
+    <div className="item" key={o.id} style={{marginBottom:30}}>
+
+      <div className="row space">
+        <div>
+          <h3>{o.orderNumber || o.id}</h3>
+          <div className="muted">
+            {o.customerName || "Customer"}
           </div>
-        ):<p className="muted">No orders have been saved yet.</p>}
+          <div className="muted">
+            {o.customerEmail}
+          </div>
+        </div>
+
+        <select
+          value={o.status || "Paid"}
+          onChange={e =>
+            updateDoc(doc(db,"orders",o.id),{
+              status:e.target.value,
+              updatedAt:serverTimestamp()
+            })
+          }
+        >
+          <option>Paid</option>
+          <option>Designing</option>
+          <option>Waiting for Approval</option>
+          <option>Ready for Pickup</option>
+          <option>Shipped</option>
+          <option>Completed</option>
+        </select>
       </div>
+
+      <hr/>
+
+      <h4>Items</h4>
+
+      {(o.items || []).map((item,index)=>(
+        <div key={index} className="row space">
+          <span>{item.name}</span>
+          <span>
+            Qty: {item.qty} • {money(item.price)}
+          </span>
+        </div>
+      ))}
+
+      <hr/>
+
+      <h4>Shipping Address</h4>
+
+      <p>
+        {o.shippingAddress?.line1}<br/>
+        {o.shippingAddress?.line2}<br/>
+        {o.shippingAddress?.city}, {o.shippingAddress?.state} {o.shippingAddress?.postalCode}<br/>
+        {o.shippingAddress?.country}
+      </p>
+
+      <hr/>
+
+      <div className="row space">
+        <strong>Subtotal</strong>
+        <strong>{money(o.subtotal || 0)}</strong>
+      </div>
+
+      <div className="row space">
+        <strong>Total</strong>
+        <strong>{money(o.total || 0)}</strong>
+      </div>
+
+      <p>
+        <b>Payment Status:</b> {o.paymentStatus}
+      </p>
+
+      <p>
+        <b>Payment Intent:</b><br/>
+        {o.paymentIntentId}
+      </p>
+
+      <p>
+        <b>Stripe Session:</b><br/>
+        {o.stripeSessionId}
+      </p>
+
+    </div>
+  )) : (
+    <p>No orders yet.</p>
+  )}
+
+</div>
+}
     }
 
     {adminTab==="requests" &&
