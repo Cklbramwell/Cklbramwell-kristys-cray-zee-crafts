@@ -87,8 +87,13 @@ export default async (request) => {
       return {
         productId: product?.metadata?.firestoreProductId || "",
         stripeProductId: product?.id || "",
+        lineKey: product?.metadata?.lineKey || "",
         name: product?.name || item.description || "Custom Product",
         description: product?.description || "",
+        size: product?.metadata?.size || "",
+        color: product?.metadata?.color || "",
+        personalization: product?.metadata?.personalization || "",
+        designNotes: product?.metadata?.designNotes || "",
         quantity: Number(item.quantity || 0),
         unitAmount: item.price?.unit_amount ?? null,
         amountTotal: Number(item.amount_total || 0),
