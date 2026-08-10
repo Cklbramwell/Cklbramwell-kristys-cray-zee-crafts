@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AdminProofUploader from "./AdminProofUploader";
+import ProductionExportPanel from "../editor/components/ProductionExportPanel";
 import { ConfigurationSummary } from "./CartView";
 import { normalizeOrderStatus, orderNeededBy, orderNeedsRush } from "../config/production";
 
@@ -94,6 +95,10 @@ export default function DesignerOrderWorkspace({
           )}
         </section>
       </div>
+
+      <section className="card designer-export-section">
+        <ProductionExportPanel order={order} notify={notify} />
+      </section>
 
       <section className="card designer-proof-section">
         <div className="grid g2">

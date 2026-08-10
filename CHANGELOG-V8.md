@@ -1,19 +1,46 @@
 # Kristy's Cray-Zee Crafts
 
-## V8.0.1 — Orders Page Build Fix
+## V8.1.0 — Production Export
 
-### Fixed
-- Corrected JSX structure in `src/pages/Orders.jsx`.
-- Wrapped the Design Studio button and OrderDetails component inside one customer-order container.
-- Removes Netlify/Vite error:
-  `Adjacent JSX elements must be wrapped in an enclosing tag.`
+### New
+- High-resolution transparent PNG export from saved Interactive Design Studio designs
+- Admin production export panel
+- Designer production export panel
+- Surface-specific production dimensions
+- Design manifest JSON export
 
-### Preserved
-- Interactive Design Studio
-- Apparel front/back/sleeve surfaces
-- Tumbler full-wrap surface
-- Laser engraving surface
-- Text and artwork layers
-- Drag, resize, rotate and scale
-- Saved order designs
-- All V7 storefront/admin/production features
+### Export Sizes
+Apparel Front / Back
+- 4500 × 5400 px
+- 300 DPI target
+
+Sleeves
+- 1800 × 4500 px
+- 300 DPI target
+
+Tumbler Full Wrap
+- 6000 × 2000 px
+- 300 DPI target
+
+Laser Engraving
+- 4800 × 3000 px
+- 300 DPI target
+
+### Production Export Includes
+- Text layers
+- Font selection
+- Text colors
+- Position
+- Rotation
+- Scale
+- Uploaded artwork layers
+- Transparent background
+
+### Workflow
+Customer saves design →
+Admin/Designer opens order →
+Production Export →
+Export Transparent PNG
+
+### Important
+Final physical dimensions should still be confirmed inside your RIP, print, or laser software before production.

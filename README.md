@@ -1,9 +1,21 @@
-# Kristy's Cray-Zee Crafts V8.0
+# Kristy's Cray-Zee Crafts V8.1
 
-My Orders → Open Design Studio
+## Production Export
 
-Customers can add/edit text, upload artwork, drag layers, resize, rotate,
-change font/color, switch product surfaces, and save the design to the order.
+Admin and Designer order workspaces now contain a Production Export panel.
 
-Publish Firestore rules equivalent to `firestore-designs.rules` before testing saves.
-Firebase Storage from V7.4 is also used for uploaded artwork.
+For each non-empty saved design surface you can export a high-resolution transparent PNG.
+
+The panel also exports a JSON design manifest for archival / troubleshooting.
+
+### Important
+Image artwork is fetched from Firebase Storage when rendering the PNG.
+Firebase Storage must permit authenticated reads and CORS-compatible browser access.
+
+### Next
+V8.2 can add:
+- mockup garment/tumbler preview
+- bleed/safe-area guides
+- exact physical dimensions
+- mirrored laser mode
+- CMYK-oriented production notes

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ConfigurationSummary } from "./CartView";
 import AdminProofUploader from "./AdminProofUploader";
+import ProductionExportPanel from "../editor/components/ProductionExportPanel";
 import {
   PRIORITIES,
   PRODUCTION_STATUSES,
@@ -153,6 +154,8 @@ export default function ProductionOrderCard({
               notify={notify}
             />
           </section>
+
+          <ProductionExportPanel order={order} notify={notify} />
 
           <section className="production-control-panel">
             <h4>Production Control</h4>

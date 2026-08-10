@@ -212,3 +212,13 @@ linear-gradient(120deg,rgba(240,43,156,.18),rgba(152,67,223,.15),rgba(72,215,239
 .design-element{position:absolute;display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none;touch-action:none}.design-element:active{cursor:grabbing}.design-element.selected{outline:3px solid #3dc8e1;outline-offset:3px}.design-element.text span{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;white-space:pre-wrap;overflow:hidden}.design-element.image img{width:100%;height:100%;object-fit:contain;pointer-events:none}
 .design-canvas-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#777;text-align:center;pointer-events:none}.design-canvas-empty>span{font-size:54px}.design-canvas-empty b{font-size:20px;color:#555}
 @media(max-width:900px){.design-canvas{min-height:480px}.design-safe-area{width:88%}}
+
+/* ===== V8.1 PRODUCTION EXPORT ===== */
+.production-export-panel{margin:14px 0;padding:18px;border:1px solid #3f4f58;border-radius:16px;background:linear-gradient(145deg,#101a20,#100c16)}
+.production-export-panel h4{margin:0}.production-export-panel p{margin:6px 0}
+.production-export-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}
+.production-export-card{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#100c16}
+.production-export-card>div{display:flex;flex-direction:column;gap:5px}.production-export-card h5{margin:0;font-size:16px}.production-export-card small{color:var(--muted)}
+.production-export-note{display:flex;gap:7px;margin-top:14px;padding:12px;border-radius:12px;background:#17111f;color:var(--muted);font-size:12px}.production-export-note b{color:#fff;white-space:nowrap}
+.designer-export-section{margin-top:16px}
+@media(max-width:850px){.production-export-grid{grid-template-columns:1fr}.production-export-card{align-items:flex-start;flex-direction:column}.production-export-card .btn{width:100%}}

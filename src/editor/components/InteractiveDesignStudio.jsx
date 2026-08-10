@@ -134,7 +134,10 @@ export default function InteractiveDesignStudio({ order, user, family = "apparel
       }
       footer={
         <div className="row space">
-          <span className="muted">Saved designs stay connected to order {order.orderNumber || order.id}.</span>
+          <span className="muted">
+            Saved designs stay connected to order {order.orderNumber || order.id}.
+            Production files are generated from the saved design.
+          </span>
           <button className="btn primary" onClick={save} disabled={saving}>
             {saving ? "Saving..." : "Save Design"}
           </button>
