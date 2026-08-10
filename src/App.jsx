@@ -453,6 +453,14 @@ export default function App() {
         </div>
       </footer>
 
+      {printJob && (
+        <PrintModal
+          order={printJob.order}
+          type={printJob.type}
+          onClose={() => setPrintJob(null)}
+        />
+      )}
+
       {message && <div className="toast">{message}</div>}
     </>
   );
