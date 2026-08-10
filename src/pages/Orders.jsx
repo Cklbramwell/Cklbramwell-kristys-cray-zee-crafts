@@ -51,24 +51,43 @@ export default function Orders({ user, orders, notify, onOpenDesignStudio }) {
 
   return (
     <section className="wrap">
-      <div className="eyebrow">My account</div>
-      <h2>Order History</h2>
+      <div className="eyebrow">My Account</div>
+      <h1 className="page-title">My Orders</h1>
 
       {!user ? (
-        <div className="card">Please sign in to view your orders.</div>
+        <div className="card">
+          <h3>Sign in to view your orders.</h3>
+        </div>
       ) : orders.length ? (
-        orders.map((order) => (
-          <OrderDetails
-              key={order.id}
-              order={order}
-              user={user}
-              onArtworkSaved={saveArtwork}
-              onProofResponse={respondToProof}
-              notify={notify}
-            /></div>
-        ))
+        <div className="orders-stack">
+          {orders.map((order) => (
+            <div key={order.id} className="customer-order-shell">
+              <div className="row customer-order-actions">
+                <button
+                  className="btn secondary"
+                  onClick={() => onOpenDesignStudio(order.id)}
+                >
+                  Open Design Studio
+                </button>
+              </div>
+
+              <OrderDetails
+                order={order}
+                user={user}
+                onArtworkSaved={saveArtwork}
+                onProofResponse={respondToProof}
+                notify={notify}
+              />
+            </div>
+          ))}
+        </div>
       ) : (
-        <div className="card muted">No orders yet.</div>
+        <div className="card">
+          <h3>No orders yet.</h3>
+          <p className="muted">
+            Your paid orders will appear here after checkout.
+          </p>
+        </div>
       )}
     </section>
   );
