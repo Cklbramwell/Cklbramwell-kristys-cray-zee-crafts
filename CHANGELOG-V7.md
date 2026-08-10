@@ -1,42 +1,55 @@
 # Kristy's Cray-Zee Crafts
 
-## V7.6.0 — Business Analytics
+## V7.9.0 — Foundation Update
 
-### New Admin Analytics
-- Gross sales
-- Paid order count
-- Average order value
-- Repeat customer count
-- Rush order count and rate
-- Active production count
-- Top products
-- Popular apparel sizes
-- Product-family distribution
-- Production-status distribution
-- Top repeat customers
-- Revenue trend
-- Date-range filtering
-- CSV order export
+### Purpose
+Prepare the existing application for V8 Interactive Design Studio without changing
+the current customer workflow.
 
-### Date Filters
-- Today
-- Last 7 Days
-- Last 30 Days
-- Last 90 Days
-- This Year
-- All Time
+### New Design Editor Infrastructure
+- Editor product modes
+- Apparel surfaces:
+  - Front
+  - Back
+  - Left Sleeve
+  - Right Sleeve
+- Drinkware full-wrap surface
+- Laser engraving surface
+- Reusable editor shell
+- Reusable surface tabs
+- Text-element state helpers
+- Image-element state helpers
+- Position / scaling model
+- Order-design persistence service
+- Reusable normalized coordinate utilities
 
-### Important
-V7.6 reports gross sales, not profit.
-True profit/margin reporting requires material and product cost data,
-which has not been provided yet.
+### Performance / Architecture
+- Added route-level lazy loading for larger pages
+- Added reusable LazyPage loading boundary
+- Added Firebase vendor chunk configuration where supported
+- Editor code isolated under `src/editor/`
+
+### V8 Prepared For
+- Drag-and-drop artwork
+- Editable text
+- Font selection
+- Color selection
+- Resize / rotate
+- Front / back / sleeve design surfaces
+- Tumbler wrap editor
+- Laser engraving layout editor
+- Design persistence
+- Production export
 
 ### Existing Features Preserved
+- Storefront
+- Product builders
+- Stripe checkout
+- Firestore orders
 - Customer Design Portal
+- Admin dashboard
 - Designer Dashboard
-- Production workflow
+- Business Analytics
 - Email notifications
-- Shipment tracking
-- Printable invoices
-- Printable packing slips
-- Dedicated product builders
+- Tracking
+- Printable invoices and packing slips

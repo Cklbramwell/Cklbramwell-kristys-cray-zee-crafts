@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
@@ -14,17 +14,23 @@ import CartView from "./components/CartView";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import Account from "./pages/Account";
-import Orders from "./pages/Orders";
+
 import Rewards from "./pages/Rewards";
 import CustomOrder from "./pages/CustomOrder";
-import Admin from "./pages/Admin";
-import Inspiration from "./pages/Inspiration";
-import ProductPage from "./pages/ProductPage";
-import Designer from "./pages/Designer";
+
+
+
+
 import PrintModal from "./components/PrintModal";
 import { CATEGORIES } from "./config/storefront";
 import { auth, db } from "./firebase";
 import { productPrice } from "./utils";
+import LazyPage from "./components/LazyPage";
+const Admin = lazy(() => import("./pages/Admin"));
+const Designer = lazy(() => import("./pages/Designer"));
+const Inspiration = lazy(() => import("./pages/Inspiration"));
+const ProductPage = lazy(() => import("./pages/ProductPage"));
+const Orders = lazy(() => import("./pages/Orders"));
 
 const FALLBACK_PRODUCTS = [
   {
@@ -324,6 +330,7 @@ export default function App() {
 
       case "product":
         return (
+          <LazyPage>
           <ProductPage
             product={allProducts.find((item) => item.id === viewProductId)}
             products={liveProducts}
@@ -331,6 +338,7 @@ export default function App() {
             onOpenProduct={openProduct}
             onBack={() => navigate("shop")}
           />
+          </LazyPage>
         );
 
       case "design":
@@ -360,7 +368,11 @@ export default function App() {
         return <Rewards user={user} profile={profile} />;
 
       case "inspiration":
-        return <Inspiration onCustomize={openInspiration} />;
+        return (
+          <LazyPage>
+            <Inspiration onCustomize={openInspiration} />
+          </LazyPage>
+        );
 
       case "custom":
         return <CustomOrder user={user} notify={notify} />;
@@ -403,16 +415,19 @@ export default function App() {
 
       case "designer":
         return (
-          <Designer
-            user={user}
-            profile={profile}
-            orders={orders}
-            notify={notify}
-          />
+          <LazyPage>
+            <Designer
+              user={user}
+              profile={profile}
+              orders={orders}
+              notify={notify}
+            />
+          </LazyPage>
         );
 
       case "admin":
         return (
+          <LazyPage>
           <Admin
             profile={profile}
             user={user}
@@ -428,6 +443,7 @@ export default function App() {
             onPrintInvoice={(order) => setPrintJob({ order, type: "invoice" })}
             onPrintPackingSlip={(order) => setPrintJob({ order, type: "packing" })}
           />
+          </LazyPage>
         );
 
       default:
