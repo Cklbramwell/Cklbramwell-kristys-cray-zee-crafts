@@ -1,34 +1,23 @@
-# Kristy's Cray-Zee Crafts V7.2
+# Kristy's Cray-Zee Crafts V7.3
 
-## Admin + Production Workflow
+V7.3 adds live admin order alerts and printable business documents.
 
-The Admin dashboard is now designed to manage a custom order through production.
+## Print Workflow
+Admin → Orders → Open Order
 
-### Main files
-- `src/pages/Admin.jsx`
-- `src/components/ProductionBoard.jsx`
-- `src/components/ProductionOrderCard.jsx`
-- `src/components/OrderDetails.jsx`
-- `src/config/production.js`
-- `netlify/functions/update-order.mjs`
-- `netlify/functions/stripe-webhook.mjs`
+Use:
+- Print Invoice
+- Print Packing Slip
 
-### Workflow
-New Order → Designing → Proof Sent → Proof Approved → Printing → Quality Check →
-Ready for Pickup / Shipped → Completed
+The preview includes a `Print / Save PDF` button. Your browser print dialog can print physically or save as PDF.
 
-### Team fields
-- Designer
-- Printer / production
-- Priority
-- Due date
-- Proof status
-- Proof URL
-- Production notes
-- Internal notes
+## New Admin Alerts
+New orders with status `New Order` appear in the New Order Alert panel until opened or marked seen.
 
-Internal notes are shown only in Admin.
+## Email Environment Variables
+Keep these in Netlify:
+- RESEND_API_KEY
+- ORDER_FROM_EMAIL
+- ADMIN_ORDER_EMAIL
 
-### Existing orders
-Older orders with status `Paid` are displayed as `New Order` in the new dashboard.
-Their status history begins when you make the next production update.
+These must remain server-side and should never be placed in a VITE_* variable.

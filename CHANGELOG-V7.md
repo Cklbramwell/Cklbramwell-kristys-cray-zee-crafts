@@ -1,36 +1,48 @@
-# V7.2.2 — Explicit Tumbler / Laser Builder Fix
+# Kristy's Cray-Zee Crafts
 
-This release removes dependence on category-name guessing.
+## V7.3.0 — Live Admin Dashboard + Printable Documents
 
-## New
-- Explicit `builderFamily` field for products in Admin
-- Product Builder dropdown in Admin:
-  - Auto Detect
-  - Apparel
-  - Drinkware / Tumblers
-  - Laser Engraving
-  - Promotional Products
-- Tumbler products force the Drinkware Builder
-- Laser / engraving products force the Laser Builder
-- Shop category filters use explicit builder family
-- Product page shows a temporary `Builder: drinkware` / `Builder: laser` badge so you can verify the correct builder before customizing
+### New
+- New-order alert panel in Admin
+- New-order badge/queue for unseen paid orders
+- Rush-order highlighting
+- Printable invoice preview
+- Printable packing slip preview
+- Print / Save PDF support through the browser
+- Detailed invoice item configurations
+- Packing checklist
+- Production sign-off area
 
-## What to do after deploy
-Go to Admin → Products.
+### Invoice Includes
+- Business branding
+- Customer information
+- Order number
+- Status
+- Payment status
+- Due date
+- Product configuration
+- Quantity
+- Unit price
+- Line total
+- Subtotal
+- Grand total
 
-For your tumbler product:
-- Edit
-- Product Builder → Drinkware / Tumblers
-- Save Product
+### Packing Slip Includes
+- Customer information
+- Shipping / pickup details
+- Product configuration
+- Quantity
+- Pack checkboxes
+- Quality-control checklist
+- Packed-by / date sign-off
 
-For your engraving product:
-- Edit
-- Product Builder → Laser Engraving
-- Save Product
+### Admin Notifications
+The dashboard highlights new Firestore orders that have not yet been opened/marked seen in that browser.
 
-Then open each product from Shop and confirm the product page badge says:
-- Builder: drinkware
-or
-- Builder: laser
+### Email Notifications
+Email configuration remains server-side using:
+- RESEND_API_KEY
+- ORDER_FROM_EMAIL
+- ADMIN_ORDER_EMAIL
 
-Click Customize This Product. The dedicated dropdowns will appear.
+After Resend domain verification completes, the existing webhook can send customer/admin email notifications.

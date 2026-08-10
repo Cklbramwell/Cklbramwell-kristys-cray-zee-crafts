@@ -132,3 +132,33 @@ linear-gradient(120deg,rgba(240,43,156,.18),rgba(152,67,223,.15),rgba(72,215,239
 @media(max-width:900px){.order-toolbar,.admin-order-grid{grid-template-columns:1fr}.production-progress-track{grid-template-columns:repeat(8,105px)}}
 
 .builder-type-tag{margin-left:8px;background:#12313a;color:#80e8f7}
+
+/* ===== V7.3 LIVE ADMIN + PRINT DOCUMENTS ===== */
+.admin-notification-panel{margin:18px 0;border-color:#594063;background:linear-gradient(145deg,#21152b,#120d17)}
+.admin-notification-panel h3{margin:5px 0 0}.admin-alert-list{display:grid;gap:8px;margin-top:14px}
+.admin-alert-row{width:100%;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#100c16;color:#fff;text-align:left}
+.admin-alert-row.rush{border-color:#843648;background:#28131b}.admin-alert-row>div{display:flex;align-items:center;gap:10px}.admin-alert-row>div:first-child{flex-direction:column;align-items:flex-start;gap:3px}.admin-alert-row span:not(.rush-badge){color:var(--muted);font-size:12px}
+.print-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:99999;overflow:auto;padding:24px}
+.print-modal-shell{max-width:1100px;margin:0 auto;background:#e9e9e9;border-radius:18px;overflow:hidden}
+.print-modal-toolbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:14px 18px;background:#17111f;color:#fff}
+.print-modal-toolbar>div:first-child{display:flex;flex-direction:column;gap:3px}.print-modal-toolbar span{color:var(--muted);font-size:12px}
+.print-preview{padding:24px}.print-document{width:8.5in;min-height:11in;margin:0 auto;background:white;color:#111;padding:.55in;box-shadow:0 15px 45px rgba(0,0,0,.2);font-family:Arial,sans-serif}
+.print-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #50206d;padding-bottom:16px;margin-bottom:22px}
+.print-brand{display:flex;gap:14px;align-items:center}.print-brand img{width:82px;height:82px;object-fit:contain}.print-brand h1{font-size:23px;margin:0 0 5px;color:#4c176b}.print-brand p{margin:2px 0;font-size:12px}
+.print-doc-title{text-align:right}.print-doc-title h2{font-size:28px;margin:0;color:#111}.print-doc-title p{margin-top:6px;font-weight:700}
+.print-two-col{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:22px}.print-two-col h3{font-size:14px;text-transform:uppercase;color:#5b276e;border-bottom:1px solid #ddd;padding-bottom:5px}.print-two-col p,.print-two-col address{font-size:12px;line-height:1.55;margin:3px 0;font-style:normal}
+.print-table{width:100%;border-collapse:collapse;font-size:11px}.print-table th{background:#4e176a;color:#fff;text-align:left;padding:9px}.print-table td{border-bottom:1px solid #ddd;padding:9px;vertical-align:top}.pack-check{font-size:17px;text-align:center}
+.print-totals{margin-left:auto;width:280px;margin-top:18px}.print-totals>div{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ddd}.print-totals .grand{font-size:18px;border-bottom:3px double #4e176a}
+.print-note{margin-top:35px;padding:16px;text-align:center;background:#f7f0fa;border:1px solid #dfcbe8}.print-note p{margin:5px 0}
+.packing-production-box{margin-top:28px;border:1px solid #aaa;padding:16px}.packing-production-box h3{margin-top:0}.packing-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px}
+.packing-signoff{display:flex;justify-content:space-between;margin-top:38px;font-size:12px}
+@media(max-width:900px){.print-document{width:100%;min-height:auto}.print-two-col{grid-template-columns:1fr}.packing-check-grid{grid-template-columns:1fr}}
+@media print{
+  body *{visibility:hidden!important}
+  .print-modal-backdrop,.print-modal-backdrop *{visibility:visible!important}
+  .print-modal-backdrop{position:absolute;inset:0;background:white;padding:0}
+  .print-modal-shell{max-width:none;background:white;border-radius:0}
+  .no-print{display:none!important}
+  .print-preview{padding:0}
+  .print-document{box-shadow:none;margin:0;width:8.5in;min-height:11in}
+}

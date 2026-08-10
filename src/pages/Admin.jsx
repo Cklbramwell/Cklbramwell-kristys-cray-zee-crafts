@@ -10,6 +10,7 @@ import {
 import { db } from "../firebase";
 import ProductionBoard from "../components/ProductionBoard";
 import ProductionOrderCard from "../components/ProductionOrderCard";
+import AdminNotifications from "../components/AdminNotifications";
 import {
   daysUntil,
   normalizeOrderStatus,
@@ -30,11 +31,26 @@ export default function Admin({
   editing,
   setEditing,
   notify,
+  onPrintInvoice,
+  onPrintPackingSlip,
 }) {
   const [orderSearch, setOrderSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [seenOrderIds, setSeenOrderIds] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("kcc_seen_order_ids") || "[]");
+    } catch {
+      return [];
+    }
+  });
+
+  const markOrdersSeen = (ids) => {
+    const next = Array.from(new Set([...seenOrderIds, ...ids])).slice(-500);
+    setSeenOrderIds(next);
+    localStorage.setItem("kcc_seen_order_ids", JSON.stringify(next));
+  };
 
   if (profile?.role !== "admin") {
     return (
@@ -175,6 +191,16 @@ export default function Admin({
           <strong>{money(orders.reduce((sum, order) => sum + Number(order.total || 0), 0))}</strong>
         </div>
       </div>
+
+      <AdminNotifications
+        orders={orders}
+        seenIds={seenOrderIds}
+        onOpenOrder={(orderId) => {
+          markOrdersSeen([orderId]);
+          openFromBoard(orderId);
+        }}
+        onMarkSeen={markOrdersSeen}
+      />
 
       <div className="tabs admin-tabs">
         {["dashboard", "production", "orders", "products", "requests", "customers"].map((tab) => (
@@ -368,6 +394,8 @@ export default function Admin({
                   key={order.id}
                   order={order}
                   onUpdate={updateOrder}
+                  onPrintInvoice={onPrintInvoice}
+                  onPrintPackingSlip={onPrintPackingSlip}
                   expanded={expandedOrderId === order.id}
                   onToggle={() =>
                     setExpandedOrderId((current) =>

@@ -13,6 +13,8 @@ import { money } from "../utils";
 export default function ProductionOrderCard({
   order,
   onUpdate,
+  onPrintInvoice,
+  onPrintPackingSlip,
   expanded = false,
   onToggle,
 }) {
@@ -200,6 +202,12 @@ export default function ProductionOrderCard({
             <div className="row production-actions">
               <button className="btn primary" onClick={save}>
                 Save Production Update
+              </button>
+              <button className="btn secondary" onClick={() => onPrintInvoice(order)}>
+                Print Invoice
+              </button>
+              <button className="btn secondary" onClick={() => onPrintPackingSlip(order)}>
+                Print Packing Slip
               </button>
               {proofUrl && (
                 <a className="btn secondary" href={proofUrl} target="_blank" rel="noreferrer">

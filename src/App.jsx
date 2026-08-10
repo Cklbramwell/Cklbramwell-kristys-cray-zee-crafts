@@ -20,6 +20,7 @@ import CustomOrder from "./pages/CustomOrder";
 import Admin from "./pages/Admin";
 import Inspiration from "./pages/Inspiration";
 import ProductPage from "./pages/ProductPage";
+import PrintModal from "./components/PrintModal";
 import { CATEGORIES } from "./config/storefront";
 import { auth, db } from "./firebase";
 import { productPrice } from "./utils";
@@ -83,6 +84,7 @@ export default function App() {
   const [designProductId, setDesignProductId] = useState(null);
   const [viewProductId, setViewProductId] = useState(null);
   const [builderPreset, setBuilderPreset] = useState(null);
+  const [printJob, setPrintJob] = useState(null);
   const [message, setMessage] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [cart, setCart] = useState(() => {
@@ -412,6 +414,8 @@ export default function App() {
             editing={editing}
             setEditing={setEditing}
             notify={notify}
+            onPrintInvoice={(order) => setPrintJob({ order, type: "invoice" })}
+            onPrintPackingSlip={(order) => setPrintJob({ order, type: "packing" })}
           />
         );
 
