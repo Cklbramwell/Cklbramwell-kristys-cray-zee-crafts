@@ -1,14 +1,52 @@
 # Kristy's Cray-Zee Crafts
 
-## V7.3.1 — Print Preview Fix
+## V7.4.0 — Customer Design Portal
 
-### Fixed
-- Print Invoice button now opens the invoice preview.
-- Print Packing Slip button now opens the packing slip preview.
-- Print / Save PDF works through the browser print dialog.
-- Close button returns to the Admin order without changing the order.
+### Customer Design Center
+- Upload artwork/logo files
+- Upload inspiration photos
+- Upload reference files
+- View files already attached to the order
+- View current proof
+- Approve proof online
+- Request proof changes online
+- Revision notes saved to the order
+- Customer approval moves order to Proof Approved
 
-### Cause
-V7.3 correctly set the print job when a button was clicked, but the PrintModal
-component was not mounted in App.jsx because the insertion point referenced the
-wrong toast-state variable. V7.3.1 mounts PrintModal correctly.
+### Admin Design Workflow
+- See customer-uploaded artwork directly inside the order
+- Open customer files
+- Upload a proof image/PDF from Admin
+- Proof automatically moves to Proof Sent
+- Customer proof response returns to Admin
+- Admin receives proof-response email when Resend is configured
+
+### Supported Customer Uploads
+- PNG
+- JPG/JPEG
+- WEBP
+- SVG
+- PDF
+- Maximum 20 MB per file
+
+### Firebase Storage
+This release uses Firebase Storage for artwork/proof files.
+Enable Firebase Storage for the project and publish the included `firebase-storage.rules`
+(or equivalent secure rules) before testing uploads.
+
+### New Netlify Function
+- `customer-order-update.mjs`
+  - Validates Firebase sign-in
+  - Confirms customer owns the order
+  - Saves artwork metadata
+  - Handles proof approvals and revision requests
+
+### Existing Features Preserved
+- Stripe checkout
+- Firestore orders
+- Dedicated product builders
+- Production dashboard
+- Tracking
+- Email workflow
+- Printable invoice
+- Printable packing slip

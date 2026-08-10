@@ -88,6 +88,14 @@ export default function Admin({
     }
   };
 
+  const saveProof = async (order, uploaded) => {
+    await updateOrder(order, {
+      proofStatus: "Proof Sent",
+      proofUrl: uploaded.url,
+      status: "Proof Sent",
+    });
+  };
+
   const filteredOrders = useMemo(() => {
     const needle = orderSearch.trim().toLowerCase();
 
@@ -396,6 +404,9 @@ export default function Admin({
                   onUpdate={updateOrder}
                   onPrintInvoice={onPrintInvoice}
                   onPrintPackingSlip={onPrintPackingSlip}
+                  user={user}
+                  notify={notify}
+                  onProofSaved={saveProof}
                   expanded={expandedOrderId === order.id}
                   onToggle={() =>
                     setExpandedOrderId((current) =>

@@ -1,12 +1,13 @@
 import { money } from "../utils";
 import { ConfigurationSummary } from "./CartView";
+import CustomerDesignPortal from "./CustomerDesignPortal";
 import {
   PRODUCTION_STATUSES,
   normalizeOrderStatus,
   statusProgress,
 } from "../config/production";
 
-export default function OrderDetails({ order }) {
+export default function OrderDetails({ order, user, onArtworkSaved, onProofResponse, notify }) {
   const currentStatus = normalizeOrderStatus(order.status);
 
   return (
@@ -41,6 +42,14 @@ export default function OrderDetails({ order }) {
           )}
         </div>
       )}
+
+      <CustomerDesignPortal
+        order={order}
+        user={user}
+        onArtworkSaved={onArtworkSaved}
+        onProofResponse={onProofResponse}
+        notify={notify}
+      />
 
       <section className="order-section">
         <h4>Items Purchased</h4>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ConfigurationSummary } from "./CartView";
+import AdminProofUploader from "./AdminProofUploader";
 import {
   PRIORITIES,
   PRODUCTION_STATUSES,
@@ -15,6 +16,9 @@ export default function ProductionOrderCard({
   onUpdate,
   onPrintInvoice,
   onPrintPackingSlip,
+  user,
+  notify,
+  onProofSaved,
   expanded = false,
   onToggle,
 }) {
@@ -110,6 +114,45 @@ export default function ProductionOrderCard({
               <p><b>Payment:</b> {order.paymentStatus || "—"}</p>
             </section>
           </div>
+
+          <section className="admin-customer-artwork">
+            <div className="row space">
+              <div>
+                <h4>Customer Artwork & Proofs</h4>
+                <p className="muted">Files uploaded by the customer for this order.</p>
+              </div>
+            </div>
+
+            {(order.customerArtwork || []).length ? (
+              <div className="admin-file-grid">
+                {(order.customerArtwork || []).map((file, index) => (
+                  <a
+                    className="admin-file-card"
+                    href={file.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    key={`${file.url}-${index}`}
+                  >
+                    <span>{file.kind === "inspiration" ? "🖼️" : "📎"}</span>
+                    <div>
+                      <b>{file.name || "Customer file"}</b>
+                      <small>{file.kind || "artwork"}</small>
+                    </div>
+                    <span>Open ↗</span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="muted">Customer has not uploaded artwork yet.</p>
+            )}
+
+            <AdminProofUploader
+              order={order}
+              user={user}
+              onProofSaved={onProofSaved}
+              notify={notify}
+            />
+          </section>
 
           <section className="production-control-panel">
             <h4>Production Control</h4>
