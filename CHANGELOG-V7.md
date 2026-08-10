@@ -1,52 +1,50 @@
 # Kristy's Cray-Zee Crafts
 
-## V7.4.0 — Customer Design Portal
+## V7.5.0 — Designer Dashboard
 
-### Customer Design Center
-- Upload artwork/logo files
-- Upload inspiration photos
-- Upload reference files
-- View files already attached to the order
-- View current proof
-- Approve proof online
-- Request proof changes online
-- Revision notes saved to the order
-- Customer approval moves order to Proof Approved
+### New Designer Workspace
+- Separate Designer Dashboard
+- Assigned-job queue
+- Rush priority visibility
+- Due-date visibility
+- Customer artwork access
+- Full order configuration
+- Proof status controls
+- Production/design notes
+- Upload customer proof
+- Open current proof
+- See customer revision requests
 
-### Admin Design Workflow
-- See customer-uploaded artwork directly inside the order
-- Open customer files
-- Upload a proof image/PDF from Admin
-- Proof automatically moves to Proof Sent
-- Customer proof response returns to Admin
-- Admin receives proof-response email when Resend is configured
+### Role Access
+Users with role:
+- admin
+- designer
 
-### Supported Customer Uploads
-- PNG
-- JPG/JPEG
-- WEBP
-- SVG
-- PDF
-- Maximum 20 MB per file
+can open the Designer Dashboard.
 
-### Firebase Storage
-This release uses Firebase Storage for artwork/proof files.
-Enable Firebase Storage for the project and publish the included `firebase-storage.rules`
-(or equivalent secure rules) before testing uploads.
+Designers can only update orders assigned to them.
 
-### New Netlify Function
-- `customer-order-update.mjs`
-  - Validates Firebase sign-in
-  - Confirms customer owns the order
-  - Saves artwork metadata
-  - Handles proof approvals and revision requests
+### Designer Assignment
+Admin already has the Designer field in each order.
+
+The assigned value should match the designer user's:
+- Name
+or
+- Email
+
+### Security
+`designer-order-update.mjs` verifies:
+- Firebase sign-in
+- designer/admin role
+- designer assignment before allowing updates
 
 ### Existing Features Preserved
-- Stripe checkout
-- Firestore orders
-- Dedicated product builders
-- Production dashboard
-- Tracking
+- Customer Design Portal
+- Artwork uploads
+- Proof approval
+- Admin dashboard
+- Production board
 - Email workflow
+- Tracking
 - Printable invoice
 - Printable packing slip

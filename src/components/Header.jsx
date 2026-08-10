@@ -1,5 +1,6 @@
 export default function Header({
   user,
+  profile,
   isAdmin,
   cartCount,
   navigate,
@@ -24,6 +25,9 @@ export default function Header({
         <button onClick={() => navigate("inspiration")}>Inspiration</button>
         <button onClick={() => navigate("custom")}>Custom Order</button>
         {isAdmin && <button onClick={() => navigate("admin")}>Admin</button>}
+        {(isAdmin || profile?.role === "designer") && (
+          <button onClick={() => navigate("designer")}>Designer</button>
+        )}
         <button onClick={() => navigate("account")}>{user ? "Account" : "Sign In"}</button>
         <button className="cart-nav" onClick={() => navigate("cart")}>
           Cart <span className="badge">{cartCount}</span>

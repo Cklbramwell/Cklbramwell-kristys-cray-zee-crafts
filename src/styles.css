@@ -177,3 +177,13 @@ linear-gradient(120deg,rgba(240,43,156,.18),rgba(152,67,223,.15),rgba(72,215,239
 .proof-actions-panel{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}.proof-approve{width:100%;margin-bottom:14px}
 .admin-customer-artwork{background:#100c16;border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}.admin-file-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.admin-file-card{margin:0}.admin-proof-uploader{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
 @media(max-width:850px){.design-portal-grid,.admin-file-grid{grid-template-columns:1fr}}
+
+/* ===== V7.5 DESIGNER DASHBOARD ===== */
+.designer-queue{margin-top:28px}.designer-job-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.designer-job-card{display:flex;flex-direction:column;gap:10px;min-height:190px;padding:18px;border:1px solid var(--line);background:linear-gradient(145deg,#17111f,#0f0b14);border-radius:16px;color:#fff;text-align:left}
+.designer-job-card:hover{border-color:#6e5280;transform:translateY(-2px)}.designer-job-card.rush{border-color:#8f384c;background:linear-gradient(145deg,#2a141d,#151019)}
+.designer-job-card>span{color:#ddd4e5}.designer-job-card>small{color:var(--muted);line-height:1.45}
+.designer-job-meta{display:grid;gap:4px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line)}.designer-job-meta span{font-size:11px;color:var(--muted)}
+.designer-workspace-header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin:22px 0}.designer-workspace-header h1{font-size:54px;margin:5px 0}.designer-due-card{display:flex;flex-direction:column;gap:5px;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:#100c16;min-width:170px}.designer-due-card span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.designer-due-card b{font-size:20px}
+.designer-proof-section{margin-top:16px}.designer-open-proof{display:inline-flex;margin-top:12px}
+@media(max-width:950px){.designer-job-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.designer-job-grid{grid-template-columns:1fr}.designer-workspace-header{align-items:flex-start;flex-direction:column}}

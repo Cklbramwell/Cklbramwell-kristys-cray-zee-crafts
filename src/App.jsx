@@ -20,6 +20,7 @@ import CustomOrder from "./pages/CustomOrder";
 import Admin from "./pages/Admin";
 import Inspiration from "./pages/Inspiration";
 import ProductPage from "./pages/ProductPage";
+import Designer from "./pages/Designer";
 import PrintModal from "./components/PrintModal";
 import { CATEGORIES } from "./config/storefront";
 import { auth, db } from "./firebase";
@@ -400,6 +401,16 @@ export default function App() {
           />
         );
 
+      case "designer":
+        return (
+          <Designer
+            user={user}
+            profile={profile}
+            orders={orders}
+            notify={notify}
+          />
+        );
+
       case "admin":
         return (
           <Admin
@@ -436,6 +447,7 @@ export default function App() {
     <>
       <Header
         user={user}
+        profile={profile}
         isAdmin={profile?.role === "admin"}
         cartCount={cart.reduce((sum, line) => sum + Number(line.qty || 0), 0)}
         navigate={navigate}
