@@ -1,50 +1,42 @@
 # Kristy's Cray-Zee Crafts
 
-## V7.5.0 — Designer Dashboard
+## V7.6.0 — Business Analytics
 
-### New Designer Workspace
-- Separate Designer Dashboard
-- Assigned-job queue
-- Rush priority visibility
-- Due-date visibility
-- Customer artwork access
-- Full order configuration
-- Proof status controls
-- Production/design notes
-- Upload customer proof
-- Open current proof
-- See customer revision requests
+### New Admin Analytics
+- Gross sales
+- Paid order count
+- Average order value
+- Repeat customer count
+- Rush order count and rate
+- Active production count
+- Top products
+- Popular apparel sizes
+- Product-family distribution
+- Production-status distribution
+- Top repeat customers
+- Revenue trend
+- Date-range filtering
+- CSV order export
 
-### Role Access
-Users with role:
-- admin
-- designer
+### Date Filters
+- Today
+- Last 7 Days
+- Last 30 Days
+- Last 90 Days
+- This Year
+- All Time
 
-can open the Designer Dashboard.
-
-Designers can only update orders assigned to them.
-
-### Designer Assignment
-Admin already has the Designer field in each order.
-
-The assigned value should match the designer user's:
-- Name
-or
-- Email
-
-### Security
-`designer-order-update.mjs` verifies:
-- Firebase sign-in
-- designer/admin role
-- designer assignment before allowing updates
+### Important
+V7.6 reports gross sales, not profit.
+True profit/margin reporting requires material and product cost data,
+which has not been provided yet.
 
 ### Existing Features Preserved
 - Customer Design Portal
-- Artwork uploads
-- Proof approval
-- Admin dashboard
-- Production board
-- Email workflow
-- Tracking
-- Printable invoice
-- Printable packing slip
+- Designer Dashboard
+- Production workflow
+- Email notifications
+- Shipment tracking
+- Printable invoices
+- Printable packing slips
+- Dedicated product builders

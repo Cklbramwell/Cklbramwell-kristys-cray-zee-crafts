@@ -10,6 +10,7 @@ import {
 import { db } from "../firebase";
 import ProductionBoard from "../components/ProductionBoard";
 import ProductionOrderCard from "../components/ProductionOrderCard";
+import BusinessAnalytics from "../components/BusinessAnalytics";
 import AdminNotifications from "../components/AdminNotifications";
 import {
   daysUntil,
@@ -211,7 +212,7 @@ export default function Admin({
       />
 
       <div className="tabs admin-tabs">
-        {["dashboard", "production", "orders", "products", "requests", "customers"].map((tab) => (
+        {["dashboard", "analytics", "production", "orders", "products", "requests", "customers"].map((tab) => (
           <button
             key={tab}
             className={adminTab === tab ? "active" : ""}
@@ -328,6 +329,10 @@ export default function Admin({
               ))}
           </div>
         </>
+      )}
+
+      {adminTab === "analytics" && (
+        <BusinessAnalytics orders={orders} />
       )}
 
       {adminTab === "production" && (

@@ -1,26 +1,19 @@
-# Kristy's Cray-Zee Crafts V7.5
+# Kristy's Cray-Zee Crafts V7.6
 
-## Designer Dashboard
+## Business Analytics
 
-V7.5 adds a focused workspace for designers.
+Admin now includes an `Analytics` tab.
 
-### Give a user Designer access
-In Firestore `users/{uid}`, set:
+You can review:
+- sales totals
+- average order value
+- top products
+- popular sizes
+- repeat customers
+- rush orders
+- production workload
+- sales trend
 
-`role: "designer"`
+Use `Export Orders CSV` to download the currently filtered paid-order data.
 
-The user's `name` or `email` should match the Designer assignment on an order.
-
-### Designer workflow
-Designer Dashboard → My Work Queue → Open Job
-
-The designer can:
-- view customer artwork
-- review exact product configuration
-- update proof status
-- add designer/production notes
-- upload a proof
-- view revision requests
-
-### Security
-Designers cannot edit arbitrary orders. The server function verifies assignment.
+Profit is intentionally not estimated until actual product/material costs are added.
