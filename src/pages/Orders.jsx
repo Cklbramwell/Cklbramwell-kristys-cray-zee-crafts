@@ -1,6 +1,6 @@
 import OrderDetails from "../components/OrderDetails";
 
-export default function Orders({ user, orders, notify }) {
+export default function Orders({ user, orders, notify, onOpenDesignStudio }) {
   const saveArtwork = async (order, file) => {
     const idToken = await user.getIdToken();
     const response = await fetch("/.netlify/functions/customer-order-update", {
@@ -65,7 +65,7 @@ export default function Orders({ user, orders, notify }) {
               onArtworkSaved={saveArtwork}
               onProofResponse={respondToProof}
               notify={notify}
-            />
+            /></div>
         ))
       ) : (
         <div className="card muted">No orders yet.</div>

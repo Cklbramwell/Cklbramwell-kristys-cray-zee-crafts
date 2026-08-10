@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /orderDesigns/{orderId} {
+      allow read, write: if request.auth != null
+        && exists(/databases/$(database)/documents/orders/$(orderId))
+        && (
+          get(/databases/$(database)/documents/orders/$(orderId)).data.customerUid == request.auth.uid
+          || get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["admin", "designer"]
+        );
+    }
+  }
+}

@@ -31,6 +31,7 @@ const Designer = lazy(() => import("./pages/Designer"));
 const Inspiration = lazy(() => import("./pages/Inspiration"));
 const ProductPage = lazy(() => import("./pages/ProductPage"));
 const Orders = lazy(() => import("./pages/Orders"));
+const DesignStudio = lazy(() => import("./pages/DesignStudio"));
 
 const FALLBACK_PRODUCTS = [
   {
@@ -92,6 +93,7 @@ export default function App() {
   const [viewProductId, setViewProductId] = useState(null);
   const [builderPreset, setBuilderPreset] = useState(null);
   const [printJob, setPrintJob] = useState(null);
+  const [designStudioOrderId, setDesignStudioOrderId] = useState(null);
   const [message, setMessage] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [cart, setCart] = useState(() => {
@@ -359,6 +361,18 @@ export default function App() {
             orders={orders}
             notify={notify}
           />
+        );
+
+      case "design-studio":
+        return (
+          <LazyPage>
+            <DesignStudio
+              user={user}
+              order={userOrders.find((order) => order.id === designStudioOrderId)}
+              notify={notify}
+              onBack={() => navigate("orders")}
+            />
+          </LazyPage>
         );
 
       case "orders":
